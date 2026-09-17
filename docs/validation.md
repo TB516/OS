@@ -1,0 +1,56 @@
+# Bring-up status
+
+Checked on September 17, 2026, using BuildStream 2.7 in the pinned builder container and a QEMU/KVM VM.
+
+The full baseline x86_64 image builds, installs through bootc and boots through UEFI/systemd-boot into GNOME. Initial setup creates a conventional account, and password login and writable state survive a reboot. This is local VM acceptance, not a published release or hardware certification.
+
+## Image and build checks
+
+- `just build`, OCI checkout and `just validate` pass. The exported image is at `build/image`, with the same image loaded into rootless Podman as `localhost/personal-os:dev`.
+- Tested manifest: `sha256:902f4478a0050616264ee84372ab02d37e6946765c09ad834a9199422d468c1a`. Its uncompressed layer is about 9.29 GiB. It retains the amd64 platform and `containers.bootc=1` label.
+- The image's own `bootc container lint` reports 13 checks passed, one skipped and no warnings in a disposable container with networking disabled and a read-only root.
+- Kernel 7.2.2 and its matching initramfs are present. Writable-state symlinks, directory modes, OS identity, an empty image machine ID, service presets, compiled schemas and application MIME/desktop integration were checked.
+- Helium, mise and VS Code execute as a non-root user. The native executables and VS Code's Node modules resolve their shared libraries. VS Code uses its official tar archive, with no Debian-package extraction.
+- The graph resolves without duplicate-junction or missing-element errors. x86-64-v3 is disabled. The baseline build pulled 506 upstream artifacts; the kernel required a local build because its module-certificate inputs differ from upstream CI.
+- Switching Dakota from the original `next` pin to the selected `testing` pin did not change the borrowed recipes or resolved artifact keys.
+- Shell syntax, YAML, bootc TOML, Docker JSON, desktop files, local systemd units and GSettings overrides were checked. The complete image is rebuilt after recipe changes.
+
+## VM checks that passed
+
+- Installed from the exported OCI directory onto a fresh 48 GiB virtual disk using bootc's composefs backend, Btrfs and systemd-boot. The installer reported completion.
+- Booted the installed disk through UEFI without a directly supplied kernel or helper root. `bootc status` reports the expected manifest, composefs deployment and systemd bootloader, with missing verity disallowed.
+- Reached GNOME initial setup, created the `tester` administrator account without homed, entered a Wayland desktop, rebooted and logged in with its password.
+- The root is a read-only composefs overlay. `/etc` and `/var` are writable Btrfs state. Test files in `/etc`, `/var` and the user's home, the machine ID and Helium/VS Code profile directories survived reboot.
+- No failed system or user services remained after reboot and login. Homed and automatic bootc apply/reboot updates remain disabled.
+- NetworkManager obtains network configuration, resolved works, and guest/container DNS and HTTPS requests succeed.
+- Helium displays an HTTPS page. VS Code opens from GNOME and its integrated Bash terminal creates a file that survives reboot. Neither application needs a `--no-sandbox` launch option.
+- Ghostty opens with its bundled resources and shell integration. Files, Disks and Settings open successfully.
+- Files generates a PDF thumbnail. Pressing space opens that PDF through the Sushi Flatpak and renders its contents.
+- Flatpak preinstallation installs Bazaar, Mission Center and Sushi. Bazaar loads the Flathub catalog and Mission Center opens. Uninstalling Mission Center and rerunning `flatpak preinstall` leaves it removed; it was then manually reinstalled for the retained test VM.
+- Docker starts and runs a container with working DNS and HTTPS. Rootless Podman runs a separate container with working DNS and HTTPS under the account created by initial setup. Its subordinate UID/GID ranges are present.
+- Distrobox creates and enters an Alpine container as the regular user using Podman.
+- Tailscale starts and reports that it is logged out, as expected before enrollment. Libvirt socket activation works and `virsh -c qemu:///system list --all` succeeds. `/dev/kvm` is available in the guest.
+- PipeWire and WirePlumber expose the virtual audio card, sink and source.
+
+Screenshots and logs are retained locally under the ignored `build/vm` directory. See [VM notes](vm.md) for opening the disk and the installation method.
+
+## Fixes discovered during validation
+
+- The Ghostty/ncurses terminfo overlap is handled by a local filter that permits only the bundled Ghostty terminfo replacement. Other overlaps remain fatal.
+- `systemd-homed-firstboot.service` needed its own disable preset because its `Also=` setting could otherwise re-enable homed.
+- The pinned OCI builder copied and hashed its tar before closing it. Podman accepted the resulting archive, but bootc's composefs importer failed at the final entry with `Unexpected EOF in splitstream`. The local packaging command closes the tar before upstream hashes and copies it. Installation then succeeds.
+- The OCI root lacked `/sys`, which prevented systemd from switching out of the initramfs. Image assembly now explicitly creates `/dev`, `/proc` and `/sys`; a fresh installation then boots successfully.
+
+The boot journal still has upstream initramfs warnings about groups absent from its reduced account database and tmpfiles messages about symlinked home paths and the read-only root. The corresponding accounts exist in the real root, and these messages do not leave failed services. They remain cleanup work rather than unreported clean-log checks.
+
+## Remaining acceptance work
+
+CI builds, reviewed pin updates and GHCR publication can proceed from this baseline. Retaining a shared BuildStream cache is important for the kernel and other local artifacts.
+
+- Publish successive images and verify fetching, staging, rebooting into an update and rolling back. The current `localhost/personal-os:dev` origin is a placeholder, and automatic apply/reboot remains disabled.
+- Adapt an end-user installer and test its account provisioning, origin selection and offline media. The temporary VM installer is not a distributable installer.
+- Test accelerated graphics and real audio output, hardware support, Secure Boot signing and an actual libvirt guest. This run used software graphics and a discarded audio backend.
+- Test Tailscale enrollment, browser credential storage, VS Code extensions and login callbacks, and application data across an OS update.
+- Test Flatpak retries after a fresh offline boot, changes to preinstall declarations across an OS update, and Sushi previews on removable drives and network mounts.
+
+These checks were not inferred from successful builds or VM startup.

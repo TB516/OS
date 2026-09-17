@@ -1,0 +1,18 @@
+[Unit]
+Description=Install the default Flatpak applications
+Documentation=man:flatpak-preinstall(1)
+Wants=network-online.target
+After=network-online.target
+# Keep retrying if the machine boots without internet access.
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/flatpak preinstall --system --noninteractive
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=15min
+TimeoutStartSec=30min
+
+[Install]
+WantedBy=multi-user.target

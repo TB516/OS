@@ -1,0 +1,17 @@
+# Personal OS
+
+A GNOME 51 desktop built on freedesktop-sdk 26.08. The system image uses bootc, systemd-boot and Btrfs. Desktop applications come primarily from Flathub.
+
+The OS includes native Helium and Visual Studio Code, Ghostty, Docker with Compose and Buildx, Podman, Distrobox, Tailscale, mise, and QEMU/libvirt. Bazaar installs as a Flatpak after the first boot with an internet connection.
+
+The image builds and boots to GNOME in a VM. Desktop apps, containers and persistence across reboot have been tested. There is no published release or end-user installer yet.
+
+To inspect or build it with the project's BuildStream container:
+
+```sh
+just graph
+just build
+just export
+```
+
+Every build includes the full OS. `just export` writes its OCI layout to `build/image`. See the [build guide](docs/building.md) for requirements, image naming and publishing, [VM notes](docs/vm.md) for opening the local test disk, and [validation notes](docs/validation.md) for what has been checked and what remains.

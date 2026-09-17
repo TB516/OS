@@ -1,0 +1,23 @@
+# Use conventional accounts and bootc deployments.
+disable systemd-homed.service
+disable systemd-homed-activate.service
+# Its Also= setting would otherwise re-enable homed during preset-all.
+disable systemd-homed-firstboot.service
+disable systemd-sysupdate*.service
+disable systemd-sysupdate*.timer
+disable bootc-fetch-apply-updates.service
+disable bootc-fetch-apply-updates.timer
+enable systemd-resolved.service
+enable global-preset-all.service
+
+enable flatpak-preinstall.service
+# Socket activation starts libvirt when a VM client needs it.
+enable virtqemud.socket
+enable virtnetworkd.socket
+enable virtstoraged.socket
+enable virtnodedevd.socket
+enable virtnwfilterd.socket
+enable virtsecretd.socket
+enable virtinterfaced.socket
+enable virtlogd.socket
+enable virtlockd.socket

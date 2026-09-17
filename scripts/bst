@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/buildstream"
+builder_image="${BST_IMAGE:-registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2@sha256:2ca3b449b594e9284bd60f436a4efad1365116b7d3d7129fd08b7a4f459d3561}"
+mkdir -p "$cache_dir"
+
+# BuildStream needs FUSE and nested sandbox namespaces. This runs rootless and
+# only uses an already present builder image; fetching a new image is explicit.
+exec podman run --rm --pull=never \
+    --device /dev/fuse --cap-add SYS_ADMIN \
+    --security-opt seccomp=unconfined --security-opt label=disable \
+    --security-opt unmask=ALL \
+    -e XDG_CACHE_HOME=/cache \
+    -v "$cache_dir:/cache/buildstream" \
+    -v "$project_dir:/work" -w /work \
+    "$builder_image" bst --no-interactive --config /work/buildstream.conf "$@"

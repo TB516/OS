@@ -1,0 +1,7 @@
+# Set image-ref to your GHCR repository before publishing or installing.
+variables:
+  image-ref: localhost/personal-os:dev
+  image-name: Personal OS
+  image-id: personal-os
+  image-version: '51.0'
+  go-arch: amd64

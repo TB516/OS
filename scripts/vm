@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+cd "$project_dir"
+
+for file in os.raw OVMF_CODE.fd OVMF_VARS.fd; do
+    if [[ ! -f "build/vm/$file" ]]; then
+        echo "Missing build/vm/$file. See docs/vm.md for VM preparation." >&2
+        exit 1
+    fi
+done
+
+# The disk contains its own kernel and bootloader. No direct kernel boot or
+# host disks are used. SSH forwarding is accessible only from this host.
+exec qemu-system-x86_64 \
+    -name personal-os-test -enable-kvm -machine q35 -cpu host -smp 4 -m 8192 \
+    -drive if=pflash,format=raw,readonly=on,file=build/vm/OVMF_CODE.fd \
+    -drive if=pflash,format=raw,file=build/vm/OVMF_VARS.fd \
+    -drive file=build/vm/os.raw,format=raw,if=virtio \
+    -device virtio-vga -display "${VM_DISPLAY:-gtk}" \
+    -device qemu-xhci -device usb-tablet -device usb-kbd \
+    -audiodev none,id=audio0 -device ich9-intel-hda -device hda-duplex,audiodev=audio0 \
+    -netdev user,id=net0,hostfwd=tcp:127.0.0.1:2222-:22 \
+    -device virtio-net-pci,netdev=net0 \
+    -serial file:build/vm/desktop-serial.log \
+    -serial unix:build/vm/debug.sock,server=on,wait=off \
+    -qmp unix:build/vm/qmp.sock,server=on,wait=off \
+    -monitor none -pidfile build/vm/qemu.pid
