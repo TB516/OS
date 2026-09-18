@@ -1,6 +1,6 @@
-# Set image-ref to your GHCR repository before publishing or installing.
+# Installers must also use this reference as the installed tracking origin.
 variables:
-  image-ref: localhost/personal-os:dev
+  image-ref: ghcr.io/tb516/os:latest
   image-name: Personal OS
   image-id: personal-os
   image-version: '51.0'

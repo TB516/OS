@@ -2,7 +2,7 @@
 
 ## Requirements
 
-The supplied commands use Podman and just. Publishing also needs skopeo and registry credentials. The BuildStream runner uses a freedesktop-sdk builder container, pinned by digest in `scripts/bst`. It runs rootless with FUSE and the permissions required for BuildStream's nested sandboxes.
+The supplied commands use Podman and just. Publishing also needs skopeo and registry credentials. The BuildStream runner uses a freedesktop-sdk builder container, pinned by digest in `include/builder-image.txt`. It runs rootless with FUSE and the permissions required for BuildStream's nested sandboxes.
 
 Obtain the builder image before running these commands, or set `BST_IMAGE` to an already installed compatible image. The runner never pulls a container automatically or installs host tools.
 
@@ -31,7 +31,7 @@ variables:
   go-arch: amd64
 ```
 
-Use a lowercase GHCR account and repository. The checked-in `localhost/personal-os:dev` is a local development name. The name, ID and version feed `os-release`; the reference becomes the OCI index annotation. The eventual installer must also pass the intended reference as the installed system's tracking origin. An OCI annotation alone does not configure that origin.
+Use a lowercase GHCR account and repository. The checked-in reference is `ghcr.io/tb516/os:latest`. The name, ID and version feed `os-release`; the reference becomes the OCI index annotation. The eventual installer must also pass the intended reference as the installed system's tracking origin. An OCI annotation alone does not configure that origin.
 
 ## Commands
 
@@ -51,6 +51,8 @@ The OCI layout is exported to `build/image`. Export refuses to replace an existi
 
 BuildStream stores sources and artifacts in the normal user cache. Both public caches are read-only. `buildstream.conf` makes those caches available to junction projects too. The first full build may require substantial downloads and compilation. Graph inspection does not compile components, but it may download the pinned junction sources needed to load their definitions.
 
+The GitHub build workflow uses the same upstream caches. It starts fresh on each run and does not save local artifacts to GitHub Actions caches. It limits compilation to one element at a time with four jobs and skips storing build trees to reduce runner resource use. Build output remains available in the workflow logs.
+
 After logging in to GHCR, publish an exported image with the same reference configured for that build:
 
 ```sh
@@ -58,7 +60,7 @@ skopeo login ghcr.io
 just publish ghcr.io/YOUR_ACCOUNT/YOUR_IMAGE:latest
 ```
 
-Publishing is explicit. There is no automatic CI publication or registry setup.
+The GitHub build workflow publishes on pushes to `main`. See [automation](automation.md) for dependency update PRs and repository setup. The commands above also support local publication.
 
 ## Dependency ownership
 
@@ -86,9 +88,9 @@ The kernel can still miss upstream caches with baseline x86_64 enabled. Its modu
 
 Docker Engine 29.8.1, Compose 5.5.1, Buildx 0.37.1 and mise 2026.9.3 use official binary releases pinned by SHA-256. Docker's containerd/runc helpers live under `/usr/libexec/docker`. Only its service adds that directory to PATH. mise uses the regular glibc-linked `linux-x64` release and has no activation scripts or tool declarations.
 
-Helium 0.17.1.1 and Microsoft Visual Studio Code 1.138.0 are native image applications installed from official Linux tar archives. Helium lives under `/usr/lib/helium`, with its upstream wrapper exposed as `helium`. VS Code lives under `/usr/share/code`, with its upstream CLI exposed as `code`. The small files under `files/vscode` retain Microsoft's desktop launchers, URL handling, workspace MIME metadata, AppStream metadata and shell completions from the pinned release; review these against upstream's `resources/linux` and `resources/completions` when updating. Both archives are pinned by SHA-256, and VS Code's download URL also pins its commit. Their libraries come from the shared GNOME/freedesktop-sdk graph. Browser and Electron sandboxing remain enabled.
+Helium 0.17.1.1 and Microsoft Visual Studio Code 1.138.0 are native image applications installed from official Linux tar archives. Helium lives under `/usr/lib/helium`, with its upstream wrapper exposed as `helium`. VS Code lives under `/usr/share/code`, with its upstream CLI exposed as `code`. The small files under `files/vscode` retain Microsoft's desktop launchers, URL handling, workspace MIME metadata, AppStream metadata and shell completions from the pinned release; review these against upstream's `resources/linux` and `resources/completions` when updating. Both archives are pinned by SHA-256; VS Code uses Microsoft's versioned tar download URL. Their libraries come from the shared GNOME/freedesktop-sdk graph. Browser and Electron sandboxing remain enabled.
 
-These applications update with the OS image. Bump their source URLs and checksums, rebuild and deploy to update them. User profiles and VS Code extensions stay in the user's home directory. Desktop integration and application bundles live under `/usr`; `/opt` is reserved for writable state on this OS.
+These applications update with the OS image. Renovate proposes source URL and checksum changes; merging into `main` triggers a build and publication. Deploy the new image to update installed applications. User profiles and VS Code extensions stay in the user's home directory. Desktop integration and application bundles live under `/usr`; `/opt` is reserved for writable state on this OS.
 
 ## Desktop behavior
 

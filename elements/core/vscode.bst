@@ -3,7 +3,8 @@ description: Microsoft Visual Studio Code with native desktop integration
 
 sources:
 - kind: tar
-  url: vscode:commit:7debcd0e2acdea1c52de81bf9ee1620444407dda/linux-x64/stable
+  # renovate: datasource=custom.vscode depName=microsoft/vscode version=1.138.0
+  url: vscode:1.138.0/linux-x64/stable
   ref: 59fb0f88eab2fe2e3a053ac020e18fcb2b5c113d255e41c82d26302b675d580c
   directory: vscode
 - kind: local

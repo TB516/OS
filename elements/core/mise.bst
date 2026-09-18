@@ -3,6 +3,7 @@ description: Image-managed mise executable, without personal tool configuration
 
 sources:
 - kind: tar
+  # renovate: datasource=github-release-attachments depName=jdx/mise version=v2026.9.3
   url: github:jdx/mise/releases/download/v2026.9.3/mise-v2026.9.3-linux-x64.tar.gz
   ref: 72de46e58238e3ae860e449adb9a35f4aba53679621c214dec03d68955fa4de8
 

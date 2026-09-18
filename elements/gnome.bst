@@ -3,6 +3,7 @@ kind: junction
 sources:
 - kind: git_repo
   url: gnome:gnome-build-meta.git
+  # renovate: datasource=git-refs depName=GNOME/gnome-build-meta packageName=https://gitlab.gnome.org/GNOME/gnome-build-meta.git
   track: gnome-51
   ref: 51.0-0-ga50b8c9de35f51c6a646c8178cde3c2c176725b6
 

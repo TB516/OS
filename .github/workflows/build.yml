@@ -1,0 +1,59 @@
+name: Build OS
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-main
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    env:
+      IMAGE_NAME: tb516/os
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Free runner disk space
+        uses: ublue-os/remove-unwanted-software@695eb75bc387dbcd9685a8e72d23439d8686cba6 # v10
+        with:
+          extra-squeeze: true
+
+      - name: Prepare BuildStream
+        run: |
+          sudo modprobe fuse
+          # Ubuntu restricts unprivileged namespaces used by BuildStream/bwrap.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          podman pull "$(cat include/builder-image.txt)"
+
+      - name: Build image
+        run: ./scripts/bst --builders 1 --max-jobs 4 --cache-buildtrees never build oci/image.bst
+
+      - name: Export image
+        run: ./scripts/bst artifact checkout --directory build/image oci/image.bst
+
+      - name: Validate bootc image
+        run: |
+          skopeo copy oci:build/image "containers-storage:localhost/$IMAGE_NAME:sha-$GITHUB_SHA"
+          podman run --rm --pull=never "localhost/$IMAGE_NAME:sha-$GITHUB_SHA" bootc container lint
+          podman tag "localhost/$IMAGE_NAME:sha-$GITHUB_SHA" "localhost/$IMAGE_NAME:latest"
+
+      - name: Publish image
+        uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 # v3.0.0
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          tags: sha-${{ github.sha }} latest
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}

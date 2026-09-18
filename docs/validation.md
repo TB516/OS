@@ -45,7 +45,7 @@ The boot journal still has upstream initramfs warnings about groups absent from 
 
 ## Remaining acceptance work
 
-CI builds, reviewed pin updates and GHCR publication can proceed from this baseline. Retaining a shared BuildStream cache is important for the kernel and other local artifacts.
+CI builds, reviewed pin updates and GHCR publication can proceed from this baseline. The initial CI workflow uses upstream caches without preserving local artifacts between runs. Runner disk usage and build time still need verification, including repeated kernel builds on cache misses.
 
 - Publish successive images and verify fetching, staging, rebooting into an update and rolling back. The current `localhost/personal-os:dev` origin is a placeholder, and automatic apply/reboot remains disabled.
 - Adapt an end-user installer and test its account provisioning, origin selection and offline media. The temporary VM installer is not a distributable installer.

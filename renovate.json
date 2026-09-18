@@ -1,0 +1,62 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": [
+    "github-actions",
+    "custom.regex"
+  ],
+  "automerge": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^elements/.*\\.bst$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>github-release-attachments|custom\\.vscode) depName=(?<depName>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+\\n  ref: (?<currentDigest>[a-f0-9]{64})",
+        "# renovate: datasource=(?<datasource>github-tags) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+"
+      ],
+      "versioningTemplate": "loose"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^elements/.*\\.bst$/"],
+      "matchStrings": ["# renovate: datasource=git-refs depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\n  track: (?<currentValue>[^\\n]+)\\n  ref: (?:[^\\n]*-g)?(?<currentDigest>[a-f0-9]{40})"],
+      "datasourceTemplate": "git-refs",
+      "autoReplaceStringTemplate": "# renovate: datasource=git-refs depName={{{depName}}} packageName={{{packageName}}}\n  track: {{{currentValue}}}\n  ref: {{{newDigest}}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^include/builder-image\\.txt$/"],
+      "matchStrings": ["(?<depName>[^\\s]+):(?<currentValue>[^:@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"],
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "customDatasources": {
+    "vscode": {
+      "defaultRegistryUrlTemplate": "https://update.code.visualstudio.com/api/update/linux-x64/stable/latest",
+      "transformTemplates": ["{\"releases\": [{\"version\": productVersion, \"digest\": sha256hash, \"releaseTimestamp\": $fromMillis(timestamp)}], \"sourceUrl\": \"https://github.com/microsoft/vscode\"}"]
+    }
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["action"],
+      "pinDigests": true
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["github-runner"],
+      "enabled": false
+    },
+    {
+      "matchDepNames": [
+        "moby/moby",
+        "GNOME/gnome-build-meta"
+      ],
+      "postUpgradeTasks": {
+        "commands": ["node .github/renovate-sync.mjs"],
+        "fileFilters": ["elements/**"],
+        "executionMode": "branch"
+      }
+    }
+  ]
+}
