@@ -24,13 +24,13 @@ Dakota tracks `testing` with a fixed commit. The initial `next` pin was replaced
 
 GNOME supplies the desktop session and host integration. Flatpak is the normal GUI application format, with Bazaar as the store and an explicit default application list. Files and Disks are native applications. PDF thumbnails come from a separate extraction of Papers; the full Papers application is not required. Sushi is selected as a default Flatpak because its native recipe pulls Papers back into the runtime.
 
-Helium and Microsoft Visual Studio Code are also native image applications, chosen for their host integration outside Flatpak. Their official binary releases are pinned and updated with the OS. mise uses its regular Linux glibc build to match the base system.
+Helium and Microsoft Visual Studio Code are also native image applications, chosen for their host integration outside Flatpak. Their official binary releases are pinned and updated with the OS.
 
 Use Flatpak's built-in `.preinstall` declarations and a boot service, following Dakota's approach. Flatpak owns installation state and respects manual removals; changes to the default selection do not require maintaining a custom installer or completion marker.
 
 Keep parental controls and Help as supplied by upstream. An initial attempt to exclude them required modifying three GNOME recipes; maintaining those changes was not worth the smaller application selection. GNOME user documentation remains excluded through the local session list. Keep sharing services, remote desktop, accessibility and color management.
 
-Ghostty is image-managed and supplies the preferred terminal integration. Distrobox supplies mutable development environments using its upstream preference for Podman. Docker remains available separately with its CLI, Compose and Buildx. mise belongs in the image as an executable; user tool configuration remains separate.
+Ghostty is image-managed and supplies the preferred terminal integration. Distrobox supplies mutable development environments using its upstream preference for Podman. Docker remains available separately with its CLI, Compose and Buildx. mise is installed once per user and updates independently of the OS. This replaces the original image-managed mise choice because of its frequent releases.
 
 Tailscale and QEMU/libvirt belong in the image because they need host services. Selected Dakota elements also provide resolver integration, the composefs disk-visibility rule and the PC-speaker audio rule.
 

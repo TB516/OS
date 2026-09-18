@@ -31,6 +31,6 @@ VS Code uses Microsoft's stable-release API and SHA256 with a versioned tar URL.
 
 ## Two exceptions
 
-`.github/renovate-sync.mjs` runs before Renovate commits Docker Engine or GNOME updates. It hashes Docker Engine's archive from Docker's download server and copies the two shared plugin recipes from the selected GNOME commit. Compose, Buildx, mise and Helium use Renovate's release-attachment support directly. This hook uses Node's built-in modules and needs no installed packages.
+`.github/renovate-sync.mjs` runs before Renovate commits Docker Engine or GNOME updates. It hashes Docker Engine's archive from Docker's download server and copies the two shared plugin recipes from the selected GNOME commit. Compose, Buildx and Helium use Renovate's release-attachment support directly. This hook uses Node's built-in modules and needs no installed packages.
 
 Review GNOME/Dakota compatibility and local integration assumptions before merging. Review `files/vscode` when updating VS Code. The build starts after merging, so an update PR does not establish that the new OS builds or boots.

@@ -86,7 +86,7 @@ The kernel is Dakota's regular freedesktop-sdk-derived kernel, selected at the G
 
 The selected kernel's artifact key matches Dakota's pinned build and was successfully pulled from Bluefin's cache. The previous GNOME kernel missed upstream caches because its module-certificate inputs differed from GNOME CI. Reusing Dakota's artifact avoids that compilation without a project-owned cache. Future pin changes can still cause cache misses.
 
-Docker Engine 29.8.1, Compose 5.5.1, Buildx 0.37.1 and mise 2026.9.3 use official binary releases pinned by SHA-256. Docker's containerd/runc helpers live under `/usr/libexec/docker`. Only its service adds that directory to PATH. mise uses the regular glibc-linked `linux-x64` release and has no activation scripts or tool declarations.
+Docker Engine 29.8.1, Compose 5.5.1 and Buildx 0.37.1 use official binary releases pinned by SHA-256. Docker's containerd/runc helpers live under `/usr/libexec/docker`. Only its service adds that directory to PATH. mise is user-installed and is not part of the image or Renovate's dependencies.
 
 Helium 0.17.1.1 and Microsoft Visual Studio Code 1.138.0 are native image applications installed from official Linux tar archives. Helium lives under `/usr/lib/helium`, with its upstream wrapper exposed as `helium`. VS Code lives under `/usr/share/code`, with its upstream CLI exposed as `code`. The small files under `files/vscode` retain Microsoft's desktop launchers, URL handling, workspace MIME metadata, AppStream metadata and shell completions from the pinned release; review these against upstream's `resources/linux` and `resources/completions` when updating. Both archives are pinned by SHA-256; VS Code uses Microsoft's versioned tar download URL. Their libraries come from the shared GNOME/freedesktop-sdk graph. Browser and Electron sandboxing remain enabled.
 
@@ -118,7 +118,7 @@ sudo bootc rollback
 flatpak update
 ```
 
-The definition disables the upstream fetch-and-apply timer and GNOME sysupdate units. It also disables homed's main, activation and first-boot services for conventional account creation. The first-boot service must be disabled explicitly because its `Also=` setting can re-enable homed when presets are applied. Scheduled download-only updates and verified rollback are a later bring-up step. OS updates change the image-provided mise executable, not a user's mise tools.
+The definition enables background bootc updates with a service override that stages them for the next user-initiated reboot. GNOME sysupdate units remain disabled. It also disables homed's main, activation and first-boot services for conventional account creation. The first-boot service must be disabled explicitly because its `Also=` setting can re-enable homed when presets are applied. OS updates do not manage a user's mise executable or tools.
 
 ## Boot and installation
 

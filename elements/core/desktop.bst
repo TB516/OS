@@ -45,7 +45,6 @@ depends:
 
 # Terminal, development tools and services.
 - core/docker.bst
-- core/mise.bst
 - core/ghostty.bst
 - dakota.bst:bluefin/xdg-terminal-exec.bst
 - dakota.bst:bluefin/tailscale.bst
