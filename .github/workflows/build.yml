@@ -43,9 +43,23 @@ jobs:
       - name: Export image
         run: ./scripts/bst artifact checkout --directory build/image oci/image.bst
 
+      - name: Split image into reusable layers
+        run: |
+          skopeo copy oci:build/image "containers-storage:localhost/$IMAGE_NAME:unchunked"
+          CHUNKAH_CONFIG_STR="$(podman inspect "localhost/$IMAGE_NAME:unchunked")"
+          export CHUNKAH_CONFIG_STR
+          mkdir -p build/chunked
+          # Keep layer timestamps stable across builds.
+          podman run --rm \
+            --mount "type=image,src=localhost/$IMAGE_NAME:unchunked,dest=/chunkah" \
+            -v "$PWD/build/chunked:/out" \
+            -e CHUNKAH_CONFIG_STR -e SOURCE_DATE_EPOCH=1321009871 \
+            "$(cat include/chunkah-image.txt)" \
+            build --max-layers 128 --output oci:/out
+          skopeo copy oci:build/chunked "containers-storage:localhost/$IMAGE_NAME:sha-$GITHUB_SHA"
+
       - name: Validate bootc image
         run: |
-          skopeo copy oci:build/image "containers-storage:localhost/$IMAGE_NAME:sha-$GITHUB_SHA"
           podman run --rm --pull=never "localhost/$IMAGE_NAME:sha-$GITHUB_SHA" bootc container lint
           podman tag "localhost/$IMAGE_NAME:sha-$GITHUB_SHA" "localhost/$IMAGE_NAME:latest"
 

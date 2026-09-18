@@ -32,7 +32,7 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^include/builder-image\\.txt$/"],
+      "managerFilePatterns": ["/^include/(builder|chunkah)-image\\.txt$/"],
       "matchStrings": ["(?<depName>[^\\s]+):(?<currentValue>[^:@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"],
       "datasourceTemplate": "docker"
     }
