@@ -1,6 +1,6 @@
 # Dependency updates and publishing
 
-`renovate.yml` runs daily or manually and opens update PRs. `build.yml` runs only on pushes to `main`, including merged PRs. It builds the OS, runs `bootc container lint`, and publishes `ghcr.io/tb516/os:latest` and a `sha-<commit>` tag. Neither workflow runs on PR events.
+`renovate.yml` runs daily or manually and opens update PRs. `build.yml` runs only on pushes to `main`, including merged PRs. It builds the OS, runs `bootc container lint`, and publishes `ghcr.io/tb516/os:latest` and a `sha-<commit>` tag. `installer.yml` runs only when manually dispatched and publishes an installer prerelease. None runs on PR events.
 
 The build uses standard GitHub-hosted Ubuntu runners and upstream BuildStream caches, without preserving local artifacts between runs. Its first GitHub run still needs to establish whether the runner has enough disk space and time.
 

@@ -1,0 +1,92 @@
+name: Build installer ISO
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: installer
+  cancel-in-progress: false
+
+jobs:
+  installer:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 350
+    permissions:
+      contents: write
+      packages: read
+    env:
+      IMAGE: ghcr.io/tb516/os:latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Check out Dakota's ISO builder
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: projectbluefin/dakota-iso
+          # renovate: datasource=git-refs depName=projectbluefin/dakota-iso currentValue=main
+          ref: f5fbf99bbc843167522eec9078ede12308a16848
+          path: build/installer
+          persist-credentials: false
+
+      - name: Free runner disk space
+        uses: ublue-os/remove-unwanted-software@695eb75bc387dbcd9685a8e72d23439d8686cba6 # v10
+        with:
+          extra-squeeze: true
+
+      - name: Install ISO build tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y podman buildah skopeo mtools xorriso squashfs-tools dosfstools isomd5sum
+
+      - name: Pull the published OS
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          printf '%s' "$GH_TOKEN" | sudo podman login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          sudo podman pull "$IMAGE"
+          mkdir -p build/release
+          sudo podman image inspect "$IMAGE" --format '{{.Digest}}' > build/release/image-digest.txt
+
+      - name: Configure and build the live environment
+        run: |
+          cp -r installer/os build/installer/live/src/os
+          for name in base_imgref nvidia_imgref; do
+            printf '%s\n' "$IMAGE" > "build/installer/live/src/os/$name"
+          done
+          cp installer/flatpaks build/installer/live/src/flatpaks
+          sudo podman build --cap-add sys_admin --security-opt label=disable --layers \
+            --build-arg REGISTRY=tb516 --build-arg TARGET=os --build-arg TAG=latest \
+            -t localhost/os-installer -f build/installer/live/Containerfile build/installer/live
+
+      - name: Assemble the offline installer ISO
+        working-directory: build/installer
+        run: |
+          sudo mkdir -p /var/iso-build
+          sudo env SUPERISO_TMPDIR=/var/iso-build SUPERISO_COMPRESSION=release \
+            bash scripts/build-live-squashfs.sh --oci-image "$IMAGE" \
+            localhost/os-installer /var/iso-build/rootfs.sfs /var/iso-build/boot.tar
+          sudo env TMPDIR=/var/iso-build bash live/src/build-iso.sh --title 'Personal OS Live' \
+            /var/iso-build/boot.tar /var/iso-build/rootfs.sfs ../release/personal-os.iso
+          sudo chown "$USER:$USER" ../release/personal-os.iso
+
+      - name: Prepare release downloads
+        working-directory: build/release
+        run: |
+          sha256sum personal-os.iso > SHA256SUMS
+          # GitHub limits each release asset to less than 2 GiB.
+          split --bytes=1900M --numeric-suffixes personal-os.iso personal-os.iso.part-
+          sha256sum personal-os.iso.part-* > PARTS-SHA256SUMS
+          rm personal-os.iso
+
+      - name: Publish installer prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "installer-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT" build/release/* \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title 'Personal OS installer' --notes-file installer/release-notes.md

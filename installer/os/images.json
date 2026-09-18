@@ -1,0 +1,18 @@
+{
+  "default_image": "ghcr.io/tb516/os:latest",
+  "fallback_flatpaks": [],
+  "images": [
+    {
+      "name": "Personal OS",
+      "imgref": "ghcr.io/tb516/os:latest",
+      "nvidia_imgref": "ghcr.io/tb516/os:latest",
+      "desc": "GNOME desktop with bootc updates",
+      "bootloader": "systemd",
+      "filesystem": "btrfs",
+      "composefs": true,
+      "needs_user_creation": false,
+      "flatpak_var_path": "state/os/default/var",
+      "filesystems": ["btrfs"]
+    }
+  ]
+}

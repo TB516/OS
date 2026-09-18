@@ -9,6 +9,13 @@
   "customManagers": [
     {
       "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/installer\\.yml$/"],
+      "matchStrings": ["# renovate: datasource=git-refs depName=(?<depName>\\S+) currentValue=(?<currentValue>\\S+)\\n          ref: (?<currentDigest>[a-f0-9]{40})"],
+      "datasourceTemplate": "git-refs",
+      "packageNameTemplate": "https://github.com/{{{depName}}}"
+    },
+    {
+      "customType": "regex",
       "managerFilePatterns": ["/^elements/.*\\.bst$/"],
       "matchStrings": [
         "# renovate: datasource=(?<datasource>github-release-attachments|custom\\.vscode) depName=(?<depName>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+\\n  ref: (?<currentDigest>[a-f0-9]{64})",

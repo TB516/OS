@@ -1,0 +1,18 @@
+{
+  "log_file": "/var/log/bootc-installer.log",
+  "distro_name": "Personal OS",
+  "distro_logo": "",
+  "welcome_title": "Install Personal OS",
+  "imgref": "ghcr.io/tb516/os:latest",
+  "local_imgref": "containers-storage:ghcr.io/tb516/os:latest",
+  "bootloader": "systemd",
+  "composeFsBackend": true,
+  "filesystem": "btrfs",
+  "tour": {},
+  "steps": {
+    "welcome": {"template": "welcome", "protected": true},
+    "image": {"template": "image", "protected": true},
+    "disk": {"template": "disk"},
+    "encryption": {"template": "encryption"}
+  }
+}
