@@ -30,7 +30,7 @@ Use Flatpak's built-in `.preinstall` declarations and a boot service, following 
 
 Keep parental controls and Help as supplied by upstream. An initial attempt to exclude them required modifying three GNOME recipes; maintaining those changes was not worth the smaller application selection. GNOME user documentation remains excluded through the local session list. Keep sharing services, remote desktop, accessibility and color management.
 
-Ghostty is image-managed and supplies the preferred terminal integration. Distrobox supplies mutable development environments using its upstream preference for Podman. Docker remains available separately with its CLI, Compose and Buildx. mise is installed once per user and updates independently of the OS. This replaces the original image-managed mise choice because of its frequent releases.
+Ghostty is image-managed and supplies the preferred terminal integration. Distrobox supplies mutable development environments using its upstream preference for Podman. Docker remains available separately with its CLI, Compose and Buildx. mise installs automatically at user login and updates independently of the OS. This replaces the original image-managed mise choice because of its frequent releases.
 
 Tailscale and QEMU/libvirt belong in the image because they need host services. Selected Dakota elements also provide resolver integration, the composefs disk-visibility rule and the PC-speaker audio rule.
 

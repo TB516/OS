@@ -1,0 +1,21 @@
+[Unit]
+Description=Install mise for this user
+Documentation=https://mise.jdx.dev/installing-mise.html
+ConditionUser=!@system
+ConditionPathExists=!%h/.local/bin/mise
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+RuntimeDirectory=mise-bootstrap
+Environment=MISE_INSTALL_PATH=%h/.local/bin/mise
+Environment=MISE_INSTALL_HELP=0
+ExecStart=/usr/bin/curl --fail --silent --show-error --location --connect-timeout 30 --max-time 120 --output %t/mise-bootstrap/install.sh https://mise.run
+ExecStart=/usr/bin/sh %t/mise-bootstrap/install.sh
+RemainAfterExit=yes
+Restart=on-failure
+RestartSec=15min
+TimeoutStartSec=10min
+
+[Install]
+WantedBy=default.target
