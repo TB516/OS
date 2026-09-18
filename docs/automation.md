@@ -8,6 +8,8 @@ Publication uses Red Hat's `push-to-registry` Action. It reuses the image alread
 
 ## Setup
 
+Installed systems enable `bootc-fetch-apply-updates.timer`. The upstream schedule checks after one hour of uptime and eight hours after the previous run, with up to two hours of randomized delay. Local drop-ins select the composefs boot condition and run `bootc upgrade --quiet`, staging updates for the next user-initiated reboot. They do not reboot automatically. This requires a working registry update origin; end-to-end updating still needs validation after publication.
+
 Create a fine-grained GitHub token restricted to `TB516/OS`, with read/write access to Contents, Pull requests, Issues and Workflows. Store it as the Actions secret `RENOVATE_TOKEN` and renew it before expiry. Renovate uses Issues for its dashboard and Workflows to update pinned Actions. Image publication uses GitHub's built-in workflow token.
 
 Renovate is free and runs through its official Action. The updater needs no BuildStream container or Docker socket. After first publication, check GHCR package visibility before using the image for public installs. The installer must explicitly configure the image as its update origin.

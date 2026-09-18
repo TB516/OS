@@ -13,4 +13,4 @@ Keep the upstream implementation separate and add project configuration when bui
 
 Before hardware installation, test live boot, disk installation, first-user creation, boot without the ISO and an update from GHCR in a fresh VM. The upstream builder adjusts the offline payload's install configuration and repackages it, so the existing direct bootc VM test does not establish that this ISO path works unchanged. Secure Boot signing is not configured for this OS.
 
-Build one ISO locally after image publication works. Keep future OS updates on bootc; an ISO build on every commit is unnecessary. Automatic update timing remains a separate decision.
+Build one ISO locally after image publication works. Keep future OS updates on bootc; an ISO build on every commit is unnecessary. The OS stages updates in the background and applies them on the next user-initiated reboot; see [automation](automation.md).

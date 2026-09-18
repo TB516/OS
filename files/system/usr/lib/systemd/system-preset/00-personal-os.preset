@@ -5,8 +5,7 @@ disable systemd-homed-activate.service
 disable systemd-homed-firstboot.service
 disable systemd-sysupdate*.service
 disable systemd-sysupdate*.timer
-disable bootc-fetch-apply-updates.service
-disable bootc-fetch-apply-updates.timer
+enable bootc-fetch-apply-updates.timer
 enable systemd-resolved.service
 enable global-preset-all.service
 
