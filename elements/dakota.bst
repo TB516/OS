@@ -13,7 +13,7 @@ config:
     x86_64_v3: false
     gaming: false
   overrides:
-    # Replacing both junctions bypasses Dakota's desktop and kernel overrides.
+    # Share GNOME's dependency graph; gnome.bst selects Dakota's regular kernel.
     gnome-build-meta.bst: gnome.bst
     freedesktop-sdk.bst: gnome.bst:freedesktop-sdk.bst
     plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst

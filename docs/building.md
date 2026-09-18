@@ -82,9 +82,9 @@ Settings, initial setup and the SDK platform use their upstream recipes. Parenta
 
 Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the thumbnailer, the unsigned kernel-module copier, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
-The kernel is the freedesktop-sdk kernel. GNOME's zram configuration stays in place. GNOME supplies bootc 1.16.6; this definition does not take Dakota's 1.16.12 override without a demonstrated need. The initial image has no Secure Boot signing setup.
+The kernel is Dakota's regular freedesktop-sdk-derived kernel, selected at the GNOME junction so the image, modules and initramfs share it. The pinned Dakota testing recipe supplies Linux 7.2.6 with additional hardware drivers and built-in Zstd compression. GNOME's zram configuration stays in place. GNOME supplies bootc 1.16.6; this definition does not take Dakota's 1.16.12 override without a demonstrated need. The initial image has no Secure Boot signing setup.
 
-The kernel can still miss upstream caches with baseline x86_64 enabled. Its module-certificate dependency affects the artifact key: GNOME CI supplies certificates, while this checkout leaves that directory empty. Dakota also substitutes a modified kernel recipe. The first build therefore compiles our kernel locally. Avoiding that compilation on fresh CI runners requires either matching an upstream kernel's inputs or retaining our kernel artifact in a shared cache.
+The selected kernel's artifact key matches Dakota's pinned build and was successfully pulled from Bluefin's cache. The previous GNOME kernel missed upstream caches because its module-certificate inputs differed from GNOME CI. Reusing Dakota's artifact avoids that compilation without a project-owned cache. Future pin changes can still cause cache misses.
 
 Docker Engine 29.8.1, Compose 5.5.1, Buildx 0.37.1 and mise 2026.9.3 use official binary releases pinned by SHA-256. Docker's containerd/runc helpers live under `/usr/libexec/docker`. Only its service adds that directory to PATH. mise uses the regular glibc-linked `linux-x64` release and has no activation scripts or tool declarations.
 

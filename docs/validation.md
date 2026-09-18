@@ -1,5 +1,15 @@
 # Bring-up status
 
+## Dakota kernel switch, September 18, 2026
+
+- Selected Dakota testing's regular Linux 7.2.6 kernel through one GNOME junction override. The full graph uses the same kernel for the image, modules and initramfs. Baseline x86_64 and GNOME's zram setup remain selected.
+- Pulled kernel artifact `bluefin/core-linux-fdsdk/c2ca442ed88de40fae172d753e9e619c57b23db6a451c1b25a0db19800bb67ca` from Bluefin's cache. It matches the unmodified pinned Dakota project's key; no kernel compilation was needed.
+- Full local image build passed in 2m19s with eight build tasks and no failures, using existing local artifacts. This is not a cold CI timing. The exported image at `build/kernel-image` passed bootc lint with 13 checks passed and one skipped.
+- Installed the new image into a fresh 48 GiB virtual disk and booted it through UEFI/systemd-boot without a directly supplied kernel. `uname -r` reports `7.2.6`; the graphical target and GDM are active, and no system units failed. Zram is active and the background bootc update timer is enabled.
+- VM evidence and its disk are under `build/kernel-vm`. The helper install uses the local test origin `localhost/personal-os:dev`; it does not validate registry updates or the ISO installer.
+
+## Original baseline validation
+
 Checked on September 17, 2026, using BuildStream 2.7 in the pinned builder container and a QEMU/KVM VM.
 
 The full baseline x86_64 image builds, installs through bootc and boots through UEFI/systemd-boot into GNOME. Initial setup creates a conventional account, and password login and writable state survive a reboot. This is local VM acceptance, not a published release or hardware certification.
@@ -45,7 +55,7 @@ The boot journal still has upstream initramfs warnings about groups absent from 
 
 ## Remaining acceptance work
 
-CI builds, reviewed pin updates and GHCR publication can proceed from this baseline. The initial CI workflow uses upstream caches without preserving local artifacts between runs. Runner disk usage and build time still need verification, including repeated kernel builds on cache misses.
+The first standard-runner CI build passed on September 18, 2026 and published the original kernel baseline to GHCR. It took 2h03m, pulling 695 artifacts and building 20; Linux 7.2.2 compilation took 77 minutes. The workflow uses upstream caches without preserving local artifacts between runs. The Dakota kernel switch has been checked locally but has not yet run in CI.
 
 - Publish successive images and verify fetching, staging, rebooting into an update and rolling back. The current `localhost/personal-os:dev` origin is a placeholder, and automatic apply/reboot remains disabled.
 - Adapt an end-user installer and test its account provisioning, origin selection and offline media. The temporary VM installer is not a distributable installer.

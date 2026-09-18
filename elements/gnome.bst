@@ -14,10 +14,11 @@ config:
     x86_64_v3: false
     recc: passthrough
   overrides:
+    # Share Dakota's cached regular kernel across the image and initramfs.
+    freedesktop-sdk.bst:components/linux.bst: dakota.bst:core/linux-fdsdk.bst
     plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst
     plugins/buildstream-plugins-community.bst: plugins/buildstream-plugins-community.bst
     core/meta-gnome-core-apps.bst: core/apps.bst
     oci/integration/os-release.bst: core/os-release.bst
-    # Upstream signing needs private build keys. Keep the upstream kernel and
-    # use Dakota's module copier for the initial VM image without Secure Boot.
+    # Upstream signing needs private build keys; use Dakota's unsigned copier.
     gnomeos/initramfs/signed-modules.bst: dakota.bst:bluefin/unsigned-modules.bst
