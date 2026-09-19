@@ -3,9 +3,9 @@ description: Native Helium browser from its pinned official Linux release
 
 sources:
 - kind: tar
-  # renovate: datasource=github-release-attachments depName=imputnet/helium-linux version=0.17.1.1
-  url: github:imputnet/helium-linux/releases/download/0.17.1.1/helium-0.17.1.1-x86_64_linux.tar.xz
-  ref: 686d3bd83330669d7da8036648c5a251562b3963b624da19d5e9f568ddd65930
+  # renovate: datasource=github-release-attachments depName=imputnet/helium-linux version=0.17.2.1
+  url: github:imputnet/helium-linux/releases/download/0.17.2.1/helium-0.17.2.1-x86_64_linux.tar.xz
+  ref: 2a639df54e3d05f413cfbb4622a4d1a68584b31da5a7aaf58ee3cd83c7c3e299
 
 build-depends:
 - gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
