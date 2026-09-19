@@ -18,6 +18,8 @@ The OS uses the baseline x86_64 target. x86-64-v3 is disabled in both the GNOME 
 
 Artifact reuse still requires matching source revisions, recipes and build dependencies. Local image configuration and components whose inputs differ from upstream need rebuilding. BuildStream retains completed artifacts for later runs.
 
+Before pushing a fix, run a local test of the affected build or packaging step. Graph validation and lint alone are not enough. For changes that retain files in the OS, test composition with the image's exclusions and verify that the resulting files are present and usable. Report any validation that still needs CI or a VM.
+
 ## Image settings
 
 Edit `include/image.yml` before building a publishable image:

@@ -10,6 +10,12 @@ build-depends:
 variables:
   strip-binaries: ''
 
+public:
+  bst:
+    # Reclassify this upstream binary as runtime without replacing its build.
+    overlap-whitelist:
+    - /usr/bin/appstreamcli
+
 config:
   install-commands:
   # Upstream classifies its binaries as devel, which our image excludes.
