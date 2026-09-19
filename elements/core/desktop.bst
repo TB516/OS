@@ -44,6 +44,7 @@ depends:
 - dakota.bst:bluefin/wireplumber-pcsp.bst
 
 # Terminal, development tools and services.
+- core/appstream-cli.bst
 - core/docker.bst
 - core/ghostty.bst
 - dakota.bst:bluefin/xdg-terminal-exec.bst
