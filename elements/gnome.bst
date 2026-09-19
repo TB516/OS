@@ -5,7 +5,7 @@ sources:
   url: gnome:gnome-build-meta.git
   # renovate: datasource=git-refs depName=GNOME/gnome-build-meta packageName=https://gitlab.gnome.org/GNOME/gnome-build-meta.git
   track: gnome-51
-  ref: 51.0-0-ga50b8c9de35f51c6a646c8178cde3c2c176725b6
+  ref: e34f1eb8c12742aedb1ee65b855c5d88741d9f92
 
 config:
   options:
