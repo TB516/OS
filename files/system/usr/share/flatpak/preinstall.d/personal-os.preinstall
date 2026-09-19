@@ -6,3 +6,15 @@ Branch=stable
 
 [Flatpak Preinstall org.gnome.NautilusPreviewer]
 Branch=stable
+
+[Flatpak Preinstall com.mattjakeman.ExtensionManager]
+Branch=stable
+
+[Flatpak Preinstall page.tesk.Refine]
+Branch=stable
+
+[Flatpak Preinstall com.github.tchx84.Flatseal]
+Branch=stable
+
+[Flatpak Preinstall org.gnome.Logs]
+Branch=stable
