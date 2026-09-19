@@ -6,6 +6,7 @@
     "custom.regex"
   ],
   "automerge": false,
+  "prHourlyLimit": 10,
   "customManagers": [
     {
       "customType": "regex",
