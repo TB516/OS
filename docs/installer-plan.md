@@ -16,7 +16,7 @@ Each invocation creates a separate prerelease named `installer-<run-id>-<attempt
 
 The workflow checks out a pinned revision of [Dakota's ISO builder](https://github.com/projectbluefin/dakota-iso). Renovate tracks that revision. We reuse its live Containerfile, squashfs builder and UEFI ISO assembler without copying those implementations into this project.
 
-`installer/os/` supplies the image catalog, installer recipe and launcher name. The workflow supplies both upstream image-reference files using our single image; upstream's `nvidia_imgref` name does not imply a second OS edition. `installer/flatpaks` lists the same three apps as the OS preinstall configuration and must stay aligned with it.
+`installer/os/` supplies the image catalog, installer recipe and launcher name. The workflow supplies both upstream image-reference files using our single image; upstream's `nvidia_imgref` name does not imply a second OS edition. `installer/flatpaks` lists the same default apps as the OS preinstall configuration and must stay aligned with it.
 
 The live environment and offline payload use the pulled `latest` image. Installation selects systemd-boot, composefs and Btrfs, with GNOME Initial Setup creating the first account. Installed systems track `ghcr.io/tb516/os:latest` for subsequent updates. Rebuilding the ISO on each OS update is unnecessary.
 

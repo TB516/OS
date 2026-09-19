@@ -26,7 +26,7 @@ GNOME supplies the desktop session and host integration. Flatpak is the normal G
 
 Helium and Microsoft Visual Studio Code are also native image applications, chosen for their host integration outside Flatpak. Their official binary releases are pinned and updated with the OS.
 
-Use Flatpak's built-in `.preinstall` declarations and a boot service, following Dakota's approach. Flatpak owns installation state and respects manual removals; changes to the default selection do not require maintaining a custom installer or completion marker.
+Use Flatpak's built-in `.preinstall` declarations and a boot service, following Dakota's approach. The default set includes the app store, system monitor, file previews, GNOME extension management, GNOME tweaks, Flatpak permission management and journal viewing. Flatpak owns installation state and respects manual removals; changes to the default selection do not require maintaining a custom installer or completion marker.
 
 Keep parental controls and Help as supplied by upstream. An initial attempt to exclude them required modifying three GNOME recipes; maintaining those changes was not worth the smaller application selection. GNOME user documentation remains excluded through the local session list. Keep sharing services, remote desktop, accessibility and color management.
 
