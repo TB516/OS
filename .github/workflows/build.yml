@@ -51,7 +51,7 @@ jobs:
           mkdir -p build/chunked
           # Keep layer timestamps stable across builds.
           podman run --rm \
-            --mount "type=image,src=localhost/$IMAGE_NAME:unchunked,dest=/chunkah" \
+            --mount "type=image,src=localhost/$IMAGE_NAME:unchunked,target=/chunkah" \
             -v "$PWD/build/chunked:/out" \
             -e CHUNKAH_CONFIG_STR -e SOURCE_DATE_EPOCH=1321009871 \
             "$(cat include/chunkah-image.txt)" \
