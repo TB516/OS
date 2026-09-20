@@ -8,3 +8,9 @@ enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'appindicatorsupport@rgcjon
 
 [org.gnome.settings-daemon.plugins.media-keys]
 home=['<Super>e']
+
+[org.gnome.desktop.wm.keybindings]
+switch-applications=['<Super>Tab']
+switch-applications-backward=['<Shift><Super>Tab']
+switch-windows=['<Alt>Tab']
+switch-windows-backward=['<Shift><Alt>Tab']
