@@ -102,6 +102,10 @@ These applications update with the OS image. Renovate proposes source URL and ch
 
 ## Desktop behavior
 
+Super+E opens the home folder in Files. Dash to Dock, AppIndicator tray icons and Custom Command Menu are installed from the pinned Dakota recipes and enabled by default. The menu sits at the top left and opens About, System Monitor, Settings, Home, Bazaar, Extension Manager and the terminal. Its entries live in the local dconf database because the extension loads its own bundled schemas. Dakota's menu recipe also installs distro dconf snippets, but this image's profile only reads the local database.
+
+These defaults do not replace saved user settings after a rebase. If needed, enable the extensions in Extension Manager and set the Home folder shortcut in Settings. The defaults can also be restored with `gsettings reset org.gnome.settings-daemon.plugins.media-keys home` and `gsettings reset org.gnome.shell enabled-extensions`; the latter replaces your saved enabled-extension list with this image's defaults. Saved menu customizations take precedence too.
+
 Ghostty is the preferred terminal, including Ctrl+Alt+T. The build installs its resources through Dakota's full Ghostty recipe. A local filter preserves that cached artifact and permits its bundled `terminfo/g/ghostty` entry to replace ncurses' copy. It repeats Ghostty's runtime dependencies because BuildStream filters do not inherit them; review that short list when updating Dakota. The local configuration adds terminal selection, GNOME defaults and an editable dconf shortcut. It imposes no prompt, font or shell framework.
 
 Docker starts as a system service. Use `sudo docker` initially. Adding an account to the `docker` group is a separate local choice that grants control of the root daemon. Distrobox uses its upstream autodetection, which prefers the included Podman, and runs rootless by default for regular users. No image-level Distrobox configuration overrides that choice. Docker remains available independently with Compose and Buildx.
