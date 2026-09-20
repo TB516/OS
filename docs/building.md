@@ -112,6 +112,8 @@ Docker starts as a system service. Use `sudo docker` initially. Adding an accoun
 
 The GNOME junction carries a small patch adding iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
 
+The junction also carries Dakota's exact GNOME Shell extension extraction patch. The image provides `bsdunzip`, which rejects Shell's combined `-u` and `-o` flags; the patch drops `-u` so installations through Extension Manager can extract successfully. Dakota's GNOME junction redirects here, so updating Dakota alone does not apply its patch. Keeping the patch identical preserves matching Shell and bundled-extension artifact keys with Dakota when the other build inputs match. Remove it when upstream fixes extraction or supplies a compatible unzip implementation.
+
 Tailscale starts without enrollment. Run `sudo tailscale up` after installing. Its machine state belongs in writable `/var`, never in the image definition.
 
 Libvirt uses socket activation and Dakota's dedicated QEMU account settings. The image includes UEFI guest firmware. No VM GUI frontend is preinstalled.
