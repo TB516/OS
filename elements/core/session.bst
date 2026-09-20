@@ -25,3 +25,8 @@ depends:
 - gnome.bst:sdk/adwaita-icon-theme.bst
 - gnome.bst:sdk/glib-networking.bst
 - gnome.bst:sdk/gsettings-desktop-schemas.bst
+
+# Reuse Dakota's individually pinned extensions without its aggregate defaults.
+- dakota.bst:bluefin/shell-extensions/dash-to-dock.bst
+- dakota.bst:bluefin/shell-extensions/app-indicators.bst
+- dakota.bst:bluefin/shell-extensions/custom-command-menu.bst

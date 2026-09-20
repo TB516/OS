@@ -1,5 +1,15 @@
 # Bring-up status
 
+## Docker and firewalld, September 20, 2026
+
+- Booted the fresh-install disk from `build/kernel-vm` with a disposable QEMU snapshot. Its image digest is `sha256:348f165c7cb4e167e262716410d176e2cd7c9855f1c6a077ea834227aff1b80c`, with Linux 7.2.6 and Docker 29.8.1. No Dakota rebase was involved.
+- Docker initially started, but restarting it with firewalld running reproduced `failed to create NAT chain DOCKER: COMMAND_FAILED: INVALID_IPV`. The installed firewalld configuration pointed its IPv4/IPv6 iptables commands at `/bin/false`.
+- Applied a prototype path correction to a temporary copy of the configuration and bind-mounted it over the original inside the VM. After restarting firewalld, Docker started and passed another restart. Container DNS, outbound HTTPS and a port published on guest localhost all passed.
+- Replaced that prototype with a GNOME recipe patch adding iptables as a build and runtime dependency of firewalld. Its configure step now has the tools available for path discovery; image assembly no longer edits Python files. The patched dependency graph resolves successfully.
+- The patched firewalld package built successfully. Its build commands took 6 seconds, BuildStream completed the package job in 8 seconds, and a warm-cache invocation took 14 seconds end to end. The resulting artifact records `/usr/bin/iptables`, `/usr/bin/iptables-restore`, `/usr/bin/ip6tables` and `/usr/bin/ip6tables-restore`.
+- Warming the otherwise incomplete local build-dependency cache took about six minutes, dominated by GCC and gRPC artifact downloads. A clean CI runner may see similar network overhead, though some dependencies can overlap the normal full-image graph. A rebuilt-image boot test remains outstanding.
+- Evidence is under `build/docker-vm-check`. The test used a runtime bind mount, not a rebuilt image; full image rebuild and boot validation remain outstanding. The original VM disk was unchanged.
+
 ## Dakota kernel switch, September 18, 2026
 
 - Selected Dakota testing's regular Linux 7.2.6 kernel through one GNOME junction override. The full graph uses the same kernel for the image, modules and initramfs. Baseline x86_64 and GNOME's zram setup remain selected.

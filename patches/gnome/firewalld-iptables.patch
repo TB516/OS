@@ -1,0 +1,14 @@
+From: Personal OS maintainers
+Subject: [PATCH] firewalld: discover iptables during configuration
+
+Docker uses firewalld's direct API even when firewalld uses nftables.
+Without iptables in the build sandbox, configure records /bin/false for
+its IPv4/IPv6 commands. Keep iptables available at build time and runtime.
+
+diff --git a/elements/gnomeos-deps/firewalld.bst b/elements/gnomeos-deps/firewalld.bst
+--- a/elements/gnomeos-deps/firewalld.bst
++++ b/elements/gnomeos-deps/firewalld.bst
+@@ -19,2 +19,3 @@ depends:
++- freedesktop-sdk.bst:components/iptables.bst
+ - freedesktop-sdk.bst:components/python3-nftables.bst
+ - freedesktop-sdk.bst:components/python3.bst

@@ -6,6 +6,8 @@ sources:
   # renovate: datasource=git-refs depName=GNOME/gnome-build-meta packageName=https://gitlab.gnome.org/GNOME/gnome-build-meta.git
   track: gnome-51
   ref: e34f1eb8c12742aedb1ee65b855c5d88741d9f92
+- kind: patch
+  path: patches/gnome/firewalld-iptables.patch
 
 config:
   options:

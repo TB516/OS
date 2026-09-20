@@ -1,0 +1,15 @@
+# Extensions load bundled schemas, so menu defaults belong in dconf.
+# Adapted from Dakota's Custom Command Menu configuration for this image's apps.
+[org/gnome/shell/extensions/custom-command-list]
+menuoptions-setting=2
+menuicon-setting='start-here-symbolic'
+menulocation-setting=1
+menuposition-setting=0
+command1=('About', 'gnome-control-center system about', '', true)
+command2=('System Monitor', 'flatpak run io.missioncenter.MissionCenter', '', true)
+command3=('System Settings', 'gnome-control-center', '', true)
+command4=('---Applications', '', '', true)
+command5=('Home', 'nautilus --new-window ~', '', true)
+command6=('Bazaar App Store', 'flatpak run io.github.kolunmi.Bazaar', '', true)
+command7=('Extensions', 'flatpak run com.mattjakeman.ExtensionManager', '', true)
+command8=('Terminal', 'xdg-terminal-exec', '', true)
