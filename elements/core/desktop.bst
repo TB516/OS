@@ -37,6 +37,7 @@ depends:
 - gnome.bst:freedesktop-sdk.bst:components/iproute2.bst
 - gnome.bst:freedesktop-sdk.bst:components/iputils.bst
 - gnome.bst:freedesktop-sdk.bst:components/nano.bst
+- gnome.bst:freedesktop-sdk.bst:components/rsync.bst
 
 # Small integration fixes are consumed directly from the pinned Dakota graph.
 - dakota.bst:bluefin/network.bst
