@@ -30,3 +30,4 @@ depends:
 - dakota.bst:bluefin/shell-extensions/dash-to-dock.bst
 - dakota.bst:bluefin/shell-extensions/app-indicators.bst
 - dakota.bst:bluefin/shell-extensions/custom-command-menu.bst
+- core/bazaar-companion.bst
