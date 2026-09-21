@@ -3,6 +3,15 @@ name: Build OS
 on:
   push:
     branches: [main]
+    paths:
+      - .github/workflows/build.yml
+      - buildstream.conf
+      - project.conf
+      - elements/**
+      - files/**
+      - include/**
+      - patches/**
+      - scripts/bst
 
 permissions:
   contents: read
