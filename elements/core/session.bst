@@ -31,3 +31,5 @@ depends:
 - dakota.bst:bluefin/shell-extensions/app-indicators.bst
 - dakota.bst:bluefin/shell-extensions/custom-command-menu.bst
 - core/bazaar-companion.bst
+- core/gradia-capture.bst
+- core/power-status-color.bst
