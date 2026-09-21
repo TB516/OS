@@ -8,6 +8,9 @@ sources:
   ref: e34f1eb8c12742aedb1ee65b855c5d88741d9f92
 - kind: patch
   path: patches/gnome/firewalld-iptables.patch
+# Dakota redirects its GNOME junction here, so carry its Shell fix here too.
+- kind: patch
+  path: patches/gnome/gnome-shell-portable-unzip-flags.patch
 
 config:
   options:
