@@ -28,4 +28,4 @@ jobs:
           RENOVATE_ALLOWED_COMMANDS: '["^node \\.github/renovate-sync\\.mjs$"]'
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
-          renovate-version: 44.107.0
+          renovate-version: 44.107.3
