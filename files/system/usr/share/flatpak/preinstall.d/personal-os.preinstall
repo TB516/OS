@@ -18,3 +18,6 @@ Branch=stable
 
 [Flatpak Preinstall org.gnome.Logs]
 Branch=stable
+
+[Flatpak Preinstall org.gnome.Firmware]
+Branch=stable

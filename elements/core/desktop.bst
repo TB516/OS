@@ -11,6 +11,7 @@ depends:
 - gnome.bst:core-deps/xdg-desktop-portal-gnome.bst
 - gnome.bst:core-deps/xdg-desktop-portal-gtk.bst
 - gnome.bst:core-deps/flatpak.bst
+- gnome.bst:core-deps/fwupd.bst
 - gnome.bst:gnomeos-deps/flathub-config.bst
 - gnome.bst:gnomeos-deps/journald-config.bst
 - gnome.bst:gnomeos-deps/nm-connectivity-config.bst
@@ -46,6 +47,8 @@ depends:
 
 # Terminal, development tools and services.
 - core/appstream-cli.bst
+- core/eu-strip.bst
+- core/strip.bst
 - core/docker.bst
 - core/ghostty.bst
 - dakota.bst:bluefin/xdg-terminal-exec.bst
@@ -57,6 +60,7 @@ depends:
 - gnome.bst:freedesktop-sdk.bst:components/podman.bst
 - gnome.bst:freedesktop-sdk.bst:components/containers-common.bst
 - gnome.bst:freedesktop-sdk.bst:components/flatpak-builder.bst
+- gnome.bst:freedesktop-sdk.bst:components/patch.bst
 - gnome.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst
 - gnome.bst:freedesktop-sdk.bst:components/git.bst
 - gnome.bst:freedesktop-sdk.bst:components/curl.bst
