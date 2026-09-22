@@ -5,7 +5,7 @@ sources:
   url: github:projectbluefin/dakota.git
   # renovate: datasource=git-refs depName=projectbluefin/dakota packageName=https://github.com/projectbluefin/dakota.git
   track: testing
-  ref: f9c427ea6e2b47e56dc4178cbc324c051fa21d65
+  ref: 4a3b9251cd6112215f79875d312d0e35a2d6d2f5
 
 config:
   options:
