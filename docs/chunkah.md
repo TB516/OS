@@ -10,8 +10,11 @@ using the same rule as the BuildStream builder image.
 
 The workflow passes the original image configuration to Chunkah to preserve
 labels, including the bootc label. It writes an OCI directory directly and uses
-a fixed timestamp to keep layer timestamps reproducible. The 128-layer limit
-follows upstream's recommendation for large bootc images.
+the workflow start time for the OCI creation timestamp reported by bootc.
+BuildStream has already normalized filesystem mtimes, so this does not prevent
+layer reuse. The workflow checks the resulting metadata before importing the
+image. The 128-layer limit follows upstream's recommendation for large bootc
+images.
 
 Our image has no RPM package database for package grouping. Chunkah's built-in
 large-file detection supplies components, while smaller unclaimed files remain

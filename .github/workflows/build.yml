@@ -39,7 +39,8 @@ jobs:
         env:
           REGISTRY_CREDENTIALS: "${{ github.actor }}:${{ github.token }}"
         run: |
-          build_date="$(date --utc +%Y%m%d)"
+          build_epoch="$(date --utc +%s)"
+          build_date="$(date --utc --date="@$build_epoch" +%Y%m%d)"
           build_number="$(
             skopeo list-tags --creds "$REGISTRY_CREDENTIALS" \
               "docker://ghcr.io/$IMAGE_NAME" | \
@@ -50,6 +51,7 @@ jobs:
 
           sed -i "s/^  image-version:.*$/  image-version: '$image_version'/" include/image.yml
           grep -Fxq "  image-version: '$image_version'" include/image.yml
+          echo "BUILD_EPOCH=$build_epoch" >> "$GITHUB_ENV"
           echo "IMAGE_VERSION=$image_version" >> "$GITHUB_ENV"
           echo "version=$image_version" >> "$GITHUB_OUTPUT"
           echo "Building Personal OS $image_version"
@@ -77,13 +79,17 @@ jobs:
           skopeo copy oci:build/image "containers-storage:localhost/$IMAGE_NAME:unchunked"
           CHUNKAH_CONFIG_STR="$(podman inspect "localhost/$IMAGE_NAME:unchunked")"
           export CHUNKAH_CONFIG_STR
-          # Keep layer timestamps stable across builds.
+          # BuildStream has already normalized filesystem mtimes. Give the OCI
+          # config the real build time without changing reusable layer contents.
           podman run --rm \
             --mount "type=image,src=localhost/$IMAGE_NAME:unchunked,target=/chunkah" \
             -v "$PWD/build:/out" \
-            -e CHUNKAH_CONFIG_STR -e SOURCE_DATE_EPOCH=1321009871 \
+            -e CHUNKAH_CONFIG_STR -e "SOURCE_DATE_EPOCH=$BUILD_EPOCH" \
             "$(cat include/chunkah-image.txt)" \
             build --max-layers 128 --output oci:/out/chunked
+          expected_created="$(date --utc --date="@$BUILD_EPOCH" +%Y-%m-%dT%H:%M:%SZ)"
+          skopeo inspect --config oci:build/chunked | \
+            jq -e --arg created "$expected_created" '.created == $created'
           skopeo copy oci:build/chunked "containers-storage:localhost/$IMAGE_NAME:sha-$GITHUB_SHA"
 
       - name: Validate bootc image
