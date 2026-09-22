@@ -33,7 +33,7 @@ variables:
   go-arch: amd64
 ```
 
-Use a lowercase GHCR account and repository. The checked-in reference is `ghcr.io/tb516/os:latest`. The name, ID and version feed `os-release`; the reference becomes the OCI index annotation. The eventual installer must also pass the intended reference as the installed system's tracking origin. An OCI annotation alone does not configure that origin.
+Use a lowercase GHCR account and repository. The checked-in reference is `ghcr.io/tb516/os:latest`. The name, ID and version feed `os-release`; the reference becomes the OCI index annotation. Local builds keep the checked-in version. CI replaces it with a `YYYYMMDD.N` version based on the UTC date and that day's published version tags, then publishes the same value as an image tag. The eventual installer must also pass the intended reference as the installed system's tracking origin. An OCI annotation alone does not configure that origin.
 
 ## Commands
 
