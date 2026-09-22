@@ -114,6 +114,8 @@ Ghostty is the preferred terminal, including Ctrl+Alt+T. The build installs its 
 
 Docker starts as a system service. Use `sudo docker` initially. Adding an account to the `docker` group is a separate local choice that grants control of the root daemon. Distrobox uses its upstream autodetection, which prefers the included Podman, and runs rootless by default for regular users. No image-level Distrobox configuration overrides that choice. Docker remains available independently with Compose and Buildx.
 
+Flatpak Builder has native `patch`, `strip`, `eu-strip` and `eu-elfcompress` available. Local recipes keep the binutils and elfutils binaries in the image because freedesktop-sdk classifies them as development files, which image composition excludes.
+
 The GNOME junction carries a small patch adding iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
 
 The junction also carries Dakota's exact GNOME Shell extension extraction patch. The image provides `bsdunzip`, which rejects Shell's combined `-u` and `-o` flags; the patch drops `-u` so installations through Extension Manager can extract successfully. Dakota's GNOME junction redirects here, so updating Dakota alone does not apply its patch. Keeping the patch identical preserves matching Shell and bundled-extension artifact keys with Dakota when the other build inputs match. Remove it when upstream fixes extraction or supplies a compatible unzip implementation.
@@ -122,11 +124,13 @@ Tailscale starts without enrollment. Run `sudo tailscale up` after installing. I
 
 Libvirt uses socket activation and Dakota's dedicated QEMU account settings. The image includes UEFI guest firmware. No VM GUI frontend is preinstalled.
 
+The image includes GNOME's fwupd recipe, as Dakota does. `fwupdmgr` checks and applies supported device firmware updates; GNOME Firmware provides the desktop interface as a Flatpak. UEFI capsule updates depend on the machine firmware and access to the installed EFI system partition, so test device detection and staging on physical hardware before relying on them.
+
 At each boot, `flatpak-preinstall.service` runs `flatpak preinstall --system --noninteractive` after the network-online target. It reads `files/system/usr/share/flatpak/preinstall.d/personal-os.preinstall` and uses the Flathub remote declaration supplied by GNOME. Failed attempts retry every 15 minutes, including when the machine starts offline; the service stops retrying after success.
 
 Flatpak tracks preinstalled apps itself and respects manual uninstalls. Changes to the declarations take effect on the next run, including removal of previously managed apps that are no longer declared. There is no separate installation marker or shell installer. Each Flatpak declares its own runtime. Bazaar can manage subsequent Flatpak updates. To retry immediately, run `sudo systemctl restart flatpak-preinstall.service`.
 
-The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal and Logs. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions. Verify these apps and preview activation in the VM before considering this integration complete.
+The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal, Logs and GNOME Firmware. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. GNOME Firmware talks to the host fwupd service. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions. Verify these apps and preview activation in the VM before considering this integration complete.
 
 The current update path is manual:
 
