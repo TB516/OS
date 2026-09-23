@@ -29,7 +29,7 @@ jobs:
         with:
           repository: projectbluefin/dakota-iso
           # renovate: datasource=git-refs depName=projectbluefin/dakota-iso currentValue=main
-          ref: 7c9d6c6fe539e5b9321d6e185ecee567dadcca40
+          ref: 5848c46930010a5f4f80e8fbb2f9843dab5d2915
           path: build/installer
           persist-credentials: false
 
