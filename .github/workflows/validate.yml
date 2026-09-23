@@ -2,6 +2,15 @@ name: Validate OS
 
 on:
   pull_request:
+    paths:
+      - .github/workflows/validate.yml
+      - buildstream.conf
+      - project.conf
+      - elements/**
+      - files/**
+      - include/**
+      - patches/**
+      - scripts/bst
 
 permissions:
   contents: read
