@@ -22,7 +22,7 @@ Dakota tracks `testing` with a fixed commit. The initial `next` pin was replaced
 
 ## Desktop decisions
 
-GNOME supplies the desktop session and host integration. Flatpak is the normal GUI application format, with Bazaar as the store and an explicit default application list. Files and Disks are native applications. PDF thumbnails come from a separate extraction of Papers; the full Papers application is not required. Sushi is selected as a default Flatpak because its native recipe pulls Papers back into the runtime.
+GNOME supplies the desktop session and host integration. Flatpak is the normal GUI application format, with Bazaar as the store and an explicit default application list. Files and Disks are native applications. Sushi is selected as a default Flatpak for file previews. PDF thumbnails are omitted so the image does not need native Papers or a separate extraction recipe.
 
 Helium and Microsoft Visual Studio Code are also native image applications, chosen for their host integration outside Flatpak. Their official binary releases are pinned and updated with the OS.
 

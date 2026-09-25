@@ -78,11 +78,11 @@ GNOME owns the nested freedesktop-sdk junction, its patch queue, and its compone
 
 Do not run broad source tracking during bring-up. Review GNOME, freedesktop-sdk and Dakota together when updating these pins. Normal builds use the committed refs, not the tips of the tracking branches.
 
-Local stacks own the session, native application selection, boot configuration and image assembly. Files and Disks are native applications in the OS. The runtime omits GNOME Software, native Papers and Sushi, Tour, GNOME user documentation, and Dakota's aggregate configuration. Papers still appears in the full build graph because the thumbnailer recipe extracts files from its build artifact.
+Local stacks own the session, native application selection, boot configuration and image assembly. Files and Disks are native applications in the OS. The runtime omits GNOME Software, native Papers and Sushi, Tour, GNOME user documentation, and Dakota's aggregate configuration. Sushi is installed as a Flatpak for file previews; PDF thumbnails are not included.
 
 Settings, initial setup and the SDK platform use their upstream recipes. Parental controls and the Yelp Help viewer remain included to avoid maintaining custom recipes for these optional components.
 
-Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the thumbnailer, the unsigned kernel-module copier, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
+Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the unsigned kernel-module copier, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
 The kernel is Dakota's regular freedesktop-sdk-derived kernel, selected at the GNOME junction so the image, modules and initramfs share it. The pinned Dakota testing recipe supplies Linux 7.2.6 with additional hardware drivers and built-in Zstd compression. GNOME's zram configuration stays in place. GNOME supplies bootc 1.16.6; this definition does not take Dakota's 1.16.12 override without a demonstrated need. The initial image has no Secure Boot signing setup.
 
