@@ -54,6 +54,8 @@ The full baseline x86_64 image builds, installs through bootc and boots through 
 
 Screenshots and logs are retained locally under the ignored `build/vm` directory. See [VM notes](vm.md) for opening the disk and the installation method.
 
+The PDF thumbnail check above predates removal of the thumbnailer dependency. Sushi remains installed for spacebar previews, but the current image does not provide PDF thumbnails.
+
 ## Fixes discovered during validation
 
 - The Ghostty/ncurses terminfo overlap is handled by a local filter that permits only the bundled Ghostty terminfo replacement. Other overlaps remain fatal.

@@ -54,7 +54,6 @@ depends:
 - dakota.bst:bluefin/xdg-terminal-exec.bst
 - dakota.bst:bluefin/tailscale.bst
 - dakota.bst:bluefin/virtualization.bst
-- dakota.bst:bluefin/papers-thumbnailer.bst
 - gnome.bst:gnomeos-deps/distrobox.bst
 - gnome.bst:gnomeos-deps/wl-clipboard.bst
 - gnome.bst:freedesktop-sdk.bst:components/podman.bst
