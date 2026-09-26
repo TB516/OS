@@ -17,16 +17,16 @@ public:
   bst:
     integration-commands:
     # bootc owns deployment state; these directories must start empty.
-    - rm -rf /boot /run /home /root /opt /mnt /srv /var
-    - mkdir -p /boot /run /sysroot/ostree /var/home /var/opt /var/mnt /var/srv /var/usrlocal
+    - rm -rf /boot /run /ostree /home /root /opt /mnt /srv /usr/local /var
+    - mkdir -p /boot /run /var/home /var/opt /var/mnt /var/srv /var/usrlocal
     - install -d -m0700 /var/roothome
     - install -d -m1777 /var/tmp
-    - ln -s sysroot/ostree /ostree
-    - ln -s var/home /home
-    - ln -s var/roothome /root
-    - ln -s var/opt /opt
-    - ln -s var/mnt /mnt
-    - ln -s var/srv /srv
-    - rm -rf /usr/local
-    - ln -s ../var/usrlocal /usr/local
+    # bootc 1.16.6 container lint still requires this symlink for composefs images.
+    - ln -sT sysroot/ostree /ostree
+    - ln -sT var/home /home
+    - ln -sT var/roothome /root
+    - ln -sT var/opt /opt
+    - ln -sT var/mnt /mnt
+    - ln -sT var/srv /srv
+    - ln -sT ../var/usrlocal /usr/local
     - truncate -s 0 /etc/machine-id
