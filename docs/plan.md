@@ -24,7 +24,7 @@ Dakota tracks `testing` with a fixed commit. The initial `next` pin was replaced
 
 GNOME supplies the desktop session and host integration. Flatpak is the normal GUI application format, with Bazaar as the store and an explicit default application list. Files and Disks are native applications. Sushi is selected as a default Flatpak for file previews. PDF thumbnails are omitted so the image does not need native Papers or a separate extraction recipe.
 
-Helium and Microsoft Visual Studio Code are also native image applications, chosen for their host integration outside Flatpak. Their official binary releases are pinned and updated with the OS.
+Helium and Microsoft Visual Studio Code were initially included as native applications for host integration. They have since been removed from the image.
 
 Use Flatpak's built-in `.preinstall` declarations and a boot service, following Dakota's approach. The default set includes the app store, system monitor, file previews, GNOME extension management, GNOME tweaks, Flatpak permission management and journal viewing. Flatpak owns installation state and respects manual removals; changes to the default selection do not require maintaining a custom installer or completion marker.
 

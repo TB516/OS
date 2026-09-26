@@ -19,7 +19,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/^elements/.*\\.bst$/"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>github-release-attachments|custom\\.vscode) depName=(?<depName>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+\\n  ref: (?<currentDigest>[a-f0-9]{64})",
+        "# renovate: datasource=(?<datasource>github-release-attachments) depName=(?<depName>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+\\n  ref: (?<currentDigest>[a-f0-9]{64})",
         "# renovate: datasource=(?<datasource>github-tags) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+"
       ],
       "versioningTemplate": "loose"
@@ -38,12 +38,6 @@
       "datasourceTemplate": "docker"
     }
   ],
-  "customDatasources": {
-    "vscode": {
-      "defaultRegistryUrlTemplate": "https://update.code.visualstudio.com/api/update/linux-x64/stable/latest",
-      "transformTemplates": ["{\"releases\": [{\"version\": productVersion, \"digest\": sha256hash, \"releaseTimestamp\": $fromMillis(timestamp)}], \"sourceUrl\": \"https://github.com/microsoft/vscode\"}"]
-    }
-  },
   "packageRules": [
     {
       "matchManagers": ["github-actions"],

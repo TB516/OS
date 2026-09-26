@@ -96,10 +96,6 @@ The image supplies Bash activation through `/etc/profile.d/mise.sh` and adds mis
 
 `10-xdg.conf` in `/usr/lib/environment.d` sets the standard XDG base directory defaults for user services and desktop applications. `/etc/profile.d/10-xdg.sh` supplies the same defaults to SSH and text-console login shells. Both fill unset or empty values and preserve existing overrides, including Flatpak search paths. The home defaults are `~/.config`, `~/.local/share`, `~/.local/state` and `~/.cache`; system search defaults are `/etc/xdg` and `/usr/local/share:/usr/share`. These files run before the corresponding mise configuration. `XDG_RUNTIME_DIR` remains session-managed. To override desktop defaults, use a later file such as `~/.config/environment.d/90-local.conf`, then log out and back in. Custom shell overrides belong in the user's shell startup files; environment.d overrides do not automatically carry over to SSH. Non-interactive SSH commands may not read `/etc/profile`.
 
-Helium 0.17.1.1 and Microsoft Visual Studio Code 1.138.0 are native image applications installed from official Linux tar archives. Helium lives under `/usr/lib/helium`, with its upstream wrapper exposed as `helium`. VS Code lives under `/usr/share/code`, with its upstream CLI exposed as `code`. The small files under `files/vscode` retain Microsoft's desktop launchers, URL handling, workspace MIME metadata, AppStream metadata and shell completions from the pinned release; review these against upstream's `resources/linux` and `resources/completions` when updating. Both archives are pinned by SHA-256; VS Code uses Microsoft's versioned tar download URL. Their libraries come from the shared GNOME/freedesktop-sdk graph. Browser and Electron sandboxing remain enabled.
-
-These applications update with the OS image. Renovate proposes source URL and checksum changes; merging into `main` triggers a build and publication. Deploy the new image to update installed applications. User profiles and VS Code extensions stay in the user's home directory. Desktop integration and application bundles live under `/usr`; `/opt` is reserved for writable state on this OS.
-
 ## Desktop behavior
 
 Alt+Tab switches between individual windows, while Super+Tab switches between applications, matching Dakota. Super+E opens the home folder in Files. Dash to Dock, AppIndicator tray icons and Custom Command Menu are installed from the pinned Dakota recipes and enabled by default. The menu sits at the top left and opens About, System Monitor, Settings, Home, Bazaar, Extension Manager and the terminal. Its entries live in the local dconf database because the extension loads its own bundled schemas. Dakota's menu recipe also installs distro dconf snippets, but this image's profile only reads the local database.
@@ -162,7 +158,5 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 - [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/53191a4787fee1fc44b0447cfd90290b042ae3b5)
 - [Docker binary installation](https://docs.docker.com/engine/install/binaries/)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
-- [Helium Linux releases](https://github.com/imputnet/helium-linux/releases)
-- [Visual Studio Code on Linux](https://code.visualstudio.com/docs/setup/linux)
 
 The image assembly follows the GNOME and Dakota recipes at those revisions. The plugin junction declarations come from GNOME build metadata. Upstream components retain their own licenses.
