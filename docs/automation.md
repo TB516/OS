@@ -29,10 +29,10 @@ For a GitHub release archive, put this comment immediately before its URL:
 
 The same rule supports `kind: remote` and any recipe under `elements/`. Keep the comment's version identical to the version text in the URL. Renovate updates the version and checksum together by matching the pinned release asset. No script entry is needed. Different release APIs or naming conventions may require another rule.
 
-VS Code uses Microsoft's stable-release API and SHA256 with a versioned tar URL. GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions.
+GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions.
 
 ## Two exceptions
 
-`.github/renovate-sync.mjs` runs before Renovate commits Docker Engine or GNOME updates. It hashes Docker Engine's archive from Docker's download server and copies the two shared plugin recipes from the selected GNOME commit. Compose, Buildx and Helium use Renovate's release-attachment support directly. This hook uses Node's built-in modules and needs no installed packages.
+`.github/renovate-sync.mjs` runs before Renovate commits Docker Engine or GNOME updates. It hashes Docker Engine's archive from Docker's download server and copies the two shared plugin recipes from the selected GNOME commit. Compose and Buildx use Renovate's release-attachment support directly. This hook uses Node's built-in modules and needs no installed packages.
 
-Review GNOME/Dakota compatibility and local integration assumptions before merging. Review `files/vscode` when updating VS Code. The build starts after merging, so an update PR does not establish that the new OS builds or boots.
+Review GNOME/Dakota compatibility and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.

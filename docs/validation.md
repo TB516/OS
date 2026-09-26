@@ -22,6 +22,8 @@
 
 Checked on September 17, 2026, using BuildStream 2.7 in the pinned builder container and a QEMU/KVM VM.
 
+This section records the image tested then. Helium and VS Code have since been removed; their checks below do not apply to the current image.
+
 The full baseline x86_64 image builds, installs through bootc and boots through UEFI/systemd-boot into GNOME. Initial setup creates a conventional account, and password login and writable state survive a reboot. This is local VM acceptance, not a published release or hardware certification.
 
 ## Image and build checks
