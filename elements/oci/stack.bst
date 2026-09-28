@@ -18,7 +18,8 @@ public:
     integration-commands:
     # bootc owns deployment state; these directories must start empty.
     - rm -rf /boot /run /ostree /home /root /opt /mnt /srv /usr/local /var
-    - mkdir -p /boot /run /var/home /var/opt /var/mnt /var/srv /var/usrlocal
+    # bootc needs /sysroot as a mount point, including with composefs.
+    - mkdir -p /boot /run /sysroot /var/home /var/opt /var/mnt /var/srv /var/usrlocal
     - install -d -m0700 /var/roothome
     - install -d -m1777 /var/tmp
     # bootc 1.16.6 container lint still requires this symlink for composefs images.
