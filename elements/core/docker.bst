@@ -12,9 +12,9 @@ sources:
   ref: db1889184726840f75c4f9c001048430d4f25b3be3cb084d3ddd762bc0aed576
   filename: docker-compose
 - kind: remote
-  # renovate: datasource=github-release-attachments depName=docker/buildx version=v0.37.1
-  url: github:docker/buildx/releases/download/v0.37.1/buildx-v0.37.1.linux-amd64
-  ref: 9447199cdb435f25880548343c128a4b6650e8891ee598905d8d29d39a8e359b
+  # renovate: datasource=github-release-attachments depName=docker/buildx version=v0.37.2
+  url: github:docker/buildx/releases/download/v0.37.2/buildx-v0.37.2.linux-amd64
+  ref: 982ca20490b45ed1ec8d99795974d3d874a358f75938c9c237305010e6b7e548
   filename: docker-buildx
 - kind: local
   path: files/docker
