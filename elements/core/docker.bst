@@ -7,9 +7,9 @@ sources:
   url: docker:docker-29.8.2.tgz
   ref: 995d1ef289677f74fd58d8d2c35727b6a4ee389c69db8638a3e42d0487aa5b0f
 - kind: remote
-  # renovate: datasource=github-release-attachments depName=docker/compose version=v5.5.1
-  url: github:docker/compose/releases/download/v5.5.1/docker-compose-linux-x86_64
-  ref: db1889184726840f75c4f9c001048430d4f25b3be3cb084d3ddd762bc0aed576
+  # renovate: datasource=github-release-attachments depName=docker/compose version=v5.6.0
+  url: github:docker/compose/releases/download/v5.6.0/docker-compose-linux-x86_64
+  ref: 40343e21ca777173e69cff5dbafeb37c6f81f3b0d57d9e597f036e95eb63e76a
   filename: docker-compose
 - kind: remote
   # renovate: datasource=github-release-attachments depName=docker/buildx version=v0.37.2
