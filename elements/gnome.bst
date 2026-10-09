@@ -5,7 +5,7 @@ sources:
   url: gnome:gnome-build-meta.git
   # renovate: datasource=git-refs depName=GNOME/gnome-build-meta packageName=https://gitlab.gnome.org/GNOME/gnome-build-meta.git
   track: gnome-51
-  ref: 0b400781f20a940a007855351b29e4810fdc78d8
+  ref: 1808f094d469291bdd85cc92a1a08f07aac6f6a6
 - kind: patch
   path: patches/gnome/firewalld-iptables.patch
 # Dakota redirects its GNOME junction here, so carry its Shell fix here too.
