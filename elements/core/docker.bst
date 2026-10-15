@@ -3,9 +3,9 @@ description: Docker Engine, CLI, Compose and Buildx from pinned upstream binarie
 
 sources:
 - kind: tar
-  # renovate: datasource=github-tags depName=moby/moby extractVersion=^docker-v(?<version>[0-9.]+)$ version=29.9.0
-  url: docker:docker-29.9.0.tgz
-  ref: 33e1ab8b63d14bca449f7a3d30d7f6aa669daa544e60a86b17fec87f61afe2b4
+  # renovate: datasource=github-tags depName=moby/moby extractVersion=^docker-v(?<version>[0-9.]+)$ version=29.9.1
+  url: docker:docker-29.9.1.tgz
+  ref: c158ecc55adb3afb01bbd3539ed3b997d20c26dbdc418080506cc1bf5243ff57
 - kind: remote
   # renovate: datasource=github-release-attachments depName=docker/compose version=v5.6.0
   url: github:docker/compose/releases/download/v5.6.0/docker-compose-linux-x86_64
