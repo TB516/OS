@@ -27,4 +27,4 @@ jobs:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
-          renovate-version: 44.164.4
+          renovate-version: 44.167.1
