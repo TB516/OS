@@ -1,5 +1,21 @@
 # Bring-up status
 
+## Docker image import, October 18, 2026
+
+- Started from local `main` at `142d756`, independently of the kernel worktree. Reused its shared plugin prerequisite: BuildStream plugins 2.8.0, direct release/commit pins for both plugin junctions, and the same OCI compatibility patch. No kernel recipe or source pins changed.
+- BuildStream fetched the Linux amd64 manifest of `docker.io/library/docker:29.9.1-dind` at `sha256:d18cae6d97a9ebf10a017859d3cdf728de0f2efc465364ba0bab6e2c9a87ccdc` and built the Docker element. The full OS image build passed in 2m48s with nine build tasks using the existing cache. All selected Docker files survived the image exclusions with identical bytes and permissions.
+- Installed OS manifest `sha256:9b948f219686c98cc18ef3bfda289daedda641047279e64030d7ce691d9eddfd` onto a fresh disposable 48 GiB disk. It booted through UEFI/systemd-boot with Linux 7.2.9 and a read-only composefs root requiring verity. The other checkout and host Docker state were untouched.
+- Docker starts with the unchanged systemd service and daemon configuration while firewalld is active. Engine/CLI report 29.9.1, Compose 5.6.0, and Buildx 0.38.0. The daemon reports embedded containerd 2.4.2; there is no standalone containerd binary or process. Runtime helpers remain private under `/usr/libexec/docker`.
+- Docker containers passed DNS and outbound HTTPS, custom bridge service-name lookup, `--init`, and HTTP through guest-localhost port 18080. Compose brought up a service, executed a command, and served HTTP on port 18081. Buildx built and loaded an image with an executed `RUN` step; running that image returned the expected output.
+- A separate regular user ran rootless Podman using `/usr/bin/crun`, with DNS and outbound HTTPS. Its running container remained usable across `systemctl restart docker`. Both Docker and Compose services recovered their published ports after that restart, and fresh Docker containers still passed DNS and HTTPS. Test workloads were removed afterward.
+- Renovate 44.164.4 strict configuration validation passed. Its actual regex extraction, live Docker datasource lookup, and replacement logic preserved the amd64 manifest pin and changed the tag/digest together using `29.9.0-dind` as a test input. The extra live plugin lookup hit GitHub's unauthenticated API rate limit; both plugin commit pins were independently verified against their Git release tags.
+
+Before opening the PR, rebooted the installed disk and reran the corrected full test script end-to-end. It exited with status 0, including an uncached Buildx build, Docker/Compose published ports after daemon restart, and the rootless Podman checks. Docker and firewalld remained active; that boot had no fs-verity corruption messages during the runtime checks. The complete output is retained as `build/docker-import/pr-test-results.log`.
+
+Evidence, temporary test scripts, and the powered-off VM are retained under ignored `build/docker-import`. The first test attempts exposed two fixture assumptions, Alpine lacking `httpd` and the OS lacking `runuser`. The successful checks used the official BusyBox image for HTTP and systemd to run Podman as the regular user. No OS packaging adjustment was needed for those fixtures.
+
+The installer and a later read of stored image objects logged fs-verity `FILE CORRUPTED` diagnostics. The affected objects map to the unchanged QEMU binary, Rusticl and SVT-AV1 libraries, and kernel `vmlinux`. Reads returned hashes matching the composed image, and the Docker runtime checks passed, but the diagnostics remain unexplained. This was not a clean-log VM run. Existing Docker data migration, a cold CI build, non-amd64 platforms, and an OS update/rollback were not tested.
+
 ## Docker and firewalld, September 20, 2026
 
 - Booted the fresh-install disk from `build/kernel-vm` with a disposable QEMU snapshot. Its image digest is `sha256:348f165c7cb4e167e262716410d176e2cd7c9855f1c6a077ea834227aff1b80c`, with Linux 7.2.6 and Docker 29.8.1. No Dakota rebase was involved.

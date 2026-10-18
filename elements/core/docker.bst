@@ -1,21 +1,16 @@
 kind: manual
-description: Docker Engine, CLI, Compose and Buildx from pinned upstream binaries
+description: Docker Engine, CLI, Compose and Buildx from the pinned official Docker image
 
 sources:
-- kind: tar
-  # renovate: datasource=github-tags depName=moby/moby extractVersion=^docker-v(?<version>[0-9.]+)$ version=29.9.1
-  url: docker:docker-29.9.1.tgz
-  ref: c158ecc55adb3afb01bbd3539ed3b997d20c26dbdc418080506cc1bf5243ff57
-- kind: remote
-  # renovate: datasource=github-release-attachments depName=docker/compose version=v5.6.0
-  url: github:docker/compose/releases/download/v5.6.0/docker-compose-linux-x86_64
-  ref: 40343e21ca777173e69cff5dbafeb37c6f81f3b0d57d9e597f036e95eb63e76a
-  filename: docker-compose
-- kind: remote
-  # renovate: datasource=github-release-attachments depName=docker/buildx version=v0.38.0
-  url: github:docker/buildx/releases/download/v0.38.0/buildx-v0.38.0.linux-amd64
-  ref: 4fe4cc38adf48169132749b6ca22a990928db0118e3407584ee553723115d287
-  filename: docker-buildx
+- kind: docker
+  registry-url: 'docker:'
+  image: library/docker
+  architecture: amd64
+  os: linux
+  # renovate: datasource=docker depName=docker.io/library/docker
+  track: 29.9.1-dind
+  ref: sha256:d18cae6d97a9ebf10a017859d3cdf728de0f2efc465364ba0bab6e2c9a87ccdc
+  directory: image
 - kind: local
   path: files/docker
   directory: config
@@ -34,11 +29,16 @@ variables:
 
 config:
   install-commands:
-  - install -Dm755 -t "%{install-root}/usr/bin" docker dockerd
+  - install -Dm755 -t "%{install-root}/usr/bin" image/usr/local/bin/docker image/usr/local/bin/dockerd
   # Keep Docker's bundled runtime helpers private so Podman's runtime stays
   # independent. Only the Docker service adds this directory to its PATH.
+  # dockerd uses its embedded containerd, as in the official image.
   - |
     install -Dm755 -t "%{install-root}/usr/libexec/docker" \
-      containerd containerd-shim-runc-v2 ctr runc docker-init docker-proxy
-  - install -Dm755 -t "%{install-root}/usr/libexec/docker/cli-plugins" docker-compose docker-buildx
+      image/usr/local/bin/containerd-shim-runc-v2 image/usr/local/bin/ctr \
+      image/usr/local/bin/runc image/usr/local/bin/docker-init image/usr/local/bin/docker-proxy
+  - |
+    install -Dm755 -t "%{install-root}/usr/libexec/docker/cli-plugins" \
+      image/usr/local/libexec/docker/cli-plugins/docker-compose \
+      image/usr/local/libexec/docker/cli-plugins/docker-buildx
   - cp -a config/. "%{install-root}/"

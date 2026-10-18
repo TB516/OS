@@ -12,7 +12,7 @@ For a native BuildStream installation with its source-plugin prerequisites, use:
 bst --config buildstream.conf show oci/image.bst
 ```
 
-BuildStream 2.6 or later is required. Validation used 2.7 in the builder container. Native installations also need source-plugin tools such as `git` and `patch`.
+BuildStream 2.6 or later is required. Validation used 2.7 in the builder container. Native installations also need the `buildstream-plugins` Python package for Git source support and source-plugin tools such as `git` and `patch`.
 
 The OS uses the baseline x86_64 target. x86-64-v3 is disabled in both the GNOME and Dakota junctions to match their normal upstream builds and improve artifact-cache reuse. GNOME passes this option through to freedesktop-sdk.
 
@@ -88,7 +88,7 @@ The kernel is Dakota's regular freedesktop-sdk-derived kernel, selected at the G
 
 The selected kernel's artifact key matches Dakota's pinned build and was successfully pulled from Bluefin's cache. The previous GNOME kernel missed upstream caches because its module-certificate inputs differed from GNOME CI. Reusing Dakota's artifact avoids that compilation without a project-owned cache. Future pin changes can still cause cache misses.
 
-Docker Engine 29.8.1, Compose 5.5.1 and Buildx 0.37.1 use official binary releases pinned by SHA-256. Docker's containerd/runc helpers live under `/usr/libexec/docker`. Only its service adds that directory to PATH. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
+BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker:29.9.1-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
 `mise-bootstrap.service` runs at user login and uses the official `https://mise.run` installer to install mise into `~/.local/bin/mise`. The installer selects the release and verifies its download. System accounts are excluded. An existing file at that path skips installation; failures retry every 15 minutes while the user manager is running. A successful installation is left alone on subsequent logins. Removing the binary makes it eligible for installation again; use `systemctl --user mask --now mise-bootstrap.service` to opt out first.
 
@@ -156,7 +156,7 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 
 - [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/a50b8c9de35f51c6a646c8178cde3c2c176725b6)
 - [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/53191a4787fee1fc44b0447cfd90290b042ae3b5)
-- [Docker binary installation](https://docs.docker.com/engine/install/binaries/)
+- [Official Docker image recipe](https://github.com/docker-library/docker/tree/master/29)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 
-The image assembly follows the GNOME and Dakota recipes at those revisions. The plugin junction declarations come from GNOME build metadata. Upstream components retain their own licenses.
+The image assembly follows the GNOME and Dakota recipes at those revisions. The shared plugin junctions are pinned separately from GNOME. Upstream components retain their own licenses.
