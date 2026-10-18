@@ -18,21 +18,18 @@ Renovate is free and runs through its official Action. The updater needs no Buil
 
 ## Adding dependencies
 
-For a GitHub release archive, put this comment immediately before its URL:
+Docker's Engine, CLI, Compose and Buildx update together through the official Docker image. Its BuildStream source uses this annotation:
 
 ```yaml
-- kind: tar
-  # renovate: datasource=github-release-attachments depName=OWNER/REPO version=v1.2.3
-  url: github:OWNER/REPO/releases/download/v1.2.3/app-v1.2.3-linux-x64.tar.gz
-  ref: INITIAL_ARCHIVE_SHA256
+  # renovate: datasource=docker depName=docker.io/library/docker
+  track: 29.9.1-dind
+  ref: sha256:d18cae6d97a9ebf10a017859d3cdf728de0f2efc465364ba0bab6e2c9a87ccdc
 ```
 
-The same rule supports `kind: remote` and any recipe under `elements/`. Keep the comment's version identical to the version text in the URL. Renovate updates the version and checksum together by matching the pinned release asset. No script entry is needed. Different release APIs or naming conventions may require another rule.
+Keep the full version and `-dind` suffix. Renovate updates the tag and digest together and preserves the architecture of the existing Linux amd64 manifest pin. BuildStream's Docker source expects a platform manifest rather than a multi-platform index.
 
-GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions.
+The shared BuildStream plugin junctions have their own release tags and commit pins, managed directly by Renovate. They no longer follow GNOME's plugin recipes. The Docker source carries a small compatibility patch shared with other OCI imports, covering HTTP content types, Zstd layers and `sha256:` refs. Review that patch when updating the plugin release.
 
-## Two exceptions
-
-`.github/renovate-sync.mjs` runs before Renovate commits Docker Engine or GNOME updates. It hashes Docker Engine's archive from Docker's download server and copies the two shared plugin recipes from the selected GNOME commit. Compose and Buildx use Renovate's release-attachment support directly. This hook uses Node's built-in modules and needs no installed packages.
+GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
 
 Review GNOME/Dakota compatibility and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.

@@ -1,6 +1,11 @@
 kind: junction
 
 sources:
-- kind: tar
-  url: pypi:a9/93/339aec1602d559d922f3dbdceb745562a33f6abb9a3037881ddabe905418/buildstream_plugins-2.7.0.tar.gz
-  ref: 489e7915f93d3e6b233463552b6b33e47919a7e1be2afdf9efebece7d336c201
+- kind: git
+  url: github:apache/buildstream-plugins.git
+  # renovate: datasource=github-tags depName=apache/buildstream-plugins
+  track: 2.8.0
+  ref: 2681232038711d5c3d4ef1ecc962321c33ec72c1
+# OCI/zstd compatibility and standard digest syntax for OCI image imports.
+- kind: patch_queue
+  path: patches/buildstream-plugins

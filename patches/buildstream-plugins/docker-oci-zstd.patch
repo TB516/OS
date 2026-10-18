@@ -1,0 +1,60 @@
+Subject: docker: accept OCI/zstd images and standard digest prefixes
+
+The HTTP Content-Type fallback, zstd layer type and sha256-prefixed refs
+are local additions. Remove when upstream supports these cases.
+Python 3.14 in the pinned builder supplies zstd decompression.
+
+--- a/src/buildstream_plugins/sources/docker.py
++++ b/src/buildstream_plugins/sources/docker.py
+@@ -321,7 +321,8 @@
+                 manifest=response.text,
+             )
+ 
+-        if manifest["mediaType"] in (
++        media_type = manifest.get("mediaType", response.headers.get("Content-Type", "").split(";")[0])
++        if media_type in (
+             "application/vnd.docker.distribution.manifest.list.v2+json",
+             "application/vnd.oci.image.index.v1+json",
+         ):
+@@ -340,14 +341,14 @@
+                 "No images found for architecture {}, OS {}".format(architecture, os_),
+                 manifest=response.text,
+             )
+-        if manifest["mediaType"] in (
++        if media_type in (
+             "application/vnd.docker.distribution.manifest.v2+json",
+             "application/vnd.oci.image.manifest.v1+json",
+         ):
+             return response.text, our_digest
+         else:
+             raise DockerManifestError(
+-                "Unsupported manifest type {}".format(manifest["mediaType"]),
++                "Unsupported manifest type {}".format(media_type),
+                 manifest=response.text,
+             )
+ 
+@@ -409,14 +410,14 @@
+     @staticmethod
+     def _digest_to_ref(digest):
+         if digest.startswith("sha256:"):
+-            return digest[len("sha256:") :]
++            return digest
+         else:
+             method = digest.split(":")[0]
+             raise SourceError("Unsupported digest method: {}".format(method))
+ 
+     @staticmethod
+     def _ref_to_digest(ref):
+-        return "sha256:" + ref
++        return ref if ref.startswith("sha256:") else "sha256:" + ref
+ 
+     def configure(self, node):
+         # url is deprecated, but accept it as a valid key so that we can raise
+@@ -587,6 +588,7 @@
+                     if layer["mediaType"] not in (
+                         "application/vnd.docker.image.rootfs.diff.tar.gzip",
+                         "application/vnd.oci.image.layer.v1.tar+gzip",
++                        "application/vnd.oci.image.layer.v1.tar+zstd",
+                     ):
+                         raise SourceError("Unsupported layer type: {}".format(layer["mediaType"]))
+ 

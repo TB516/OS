@@ -19,10 +19,9 @@
       "customType": "regex",
       "managerFilePatterns": ["/^elements/.*\\.bst$/"],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>github-release-attachments) depName=(?<depName>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+\\n  ref: (?<currentDigest>[a-f0-9]{64})",
-        "# renovate: datasource=(?<datasource>github-tags) depName=(?<depName>\\S+) extractVersion=(?<extractVersion>\\S+) version=(?<currentValue>\\S+)\\n  url: [^\\n]+"
+        "# renovate: datasource=docker depName=(?<depName>\\S+)\\n  track: (?<currentValue>[^\\n]+)\\n  ref: (?<currentDigest>sha256:[a-f0-9]{64})"
       ],
-      "versioningTemplate": "loose"
+      "datasourceTemplate": "docker"
     },
     {
       "customType": "regex",
@@ -30,6 +29,14 @@
       "matchStrings": ["# renovate: datasource=git-refs depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\n  track: (?<currentValue>[^\\n]+)\\n  ref: (?:[^\\n]*-g)?(?<currentDigest>[a-f0-9]{40})"],
       "datasourceTemplate": "git-refs",
       "autoReplaceStringTemplate": "# renovate: datasource=git-refs depName={{{depName}}} packageName={{{packageName}}}\n  track: {{{currentValue}}}\n  ref: {{{newDigest}}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^elements/plugins/.*\\.bst$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>github-tags|gitlab-tags) depName=(?<depName>\\S+)\\n  track: (?<currentValue>[^\\n]+)\\n  ref: (?<currentDigest>[a-f0-9]{40})"
+      ],
+      "versioningTemplate": "semver"
     },
     {
       "customType": "regex",
@@ -48,17 +55,6 @@
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["github-runner"],
       "enabled": false
-    },
-    {
-      "matchDepNames": [
-        "moby/moby",
-        "GNOME/gnome-build-meta"
-      ],
-      "postUpgradeTasks": {
-        "commands": ["node .github/renovate-sync.mjs"],
-        "fileFilters": ["elements/**"],
-        "executionMode": "branch"
-      }
     }
   ]
 }
