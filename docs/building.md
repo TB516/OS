@@ -70,9 +70,9 @@ See [design history](plan.md) for the composition decisions and remaining milest
 
 | Input | Pinned revision |
 | --- | --- |
-| GNOME `gnome-51` | `a50b8c9de35f51c6a646c8178cde3c2c176725b6`, tag `51.0` |
-| freedesktop-sdk | `db97cce32cecadc7a3e98f06d557ebfa6ba9ad46`, tag `freedesktop-sdk-26.08.0` |
-| Dakota `testing` | `53191a4787fee1fc44b0447cfd90290b042ae3b5` |
+| GNOME `gnome-51` | `1808f094d469291bdd85cc92a1a08f07aac6f6a6` |
+| freedesktop-sdk | `b02b59ffe19a49a402f357fd5fcb1d552ebc50d7`, tag `freedesktop-sdk-26.08.1` |
+| Dakota `testing` | `e59afbe788e441fc1fad560c01fa4dbc267d60d8` |
 
 GNOME owns the nested freedesktop-sdk junction, its patch queue, and its component overrides. Both of Dakota's base junctions redirect into that graph. Dakota and GNOME also share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
 
@@ -84,15 +84,15 @@ Settings, initial setup and the SDK platform use their upstream recipes. Parenta
 
 Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the kernel and modules, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
-The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-kernel.bst`. The GNOME junction selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The image has no Secure Boot enrollment or signed bootloader setup yet.
+The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The GNOME junction selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
 
-The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. The current published pin is Linux 7.2.9 and is unsigned. Fetching it downloads the whole Dakota image, but only `/usr/lib/modules/<release>` enters the kernel artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
+The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. The source is the production `testing` image at Dakota revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`; the selected amd64 digest is `sha256:4697e6606ae5c23b58e24c2001654af60a614d977d23d37cc9358baa17d103a7`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
 
 The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-oci-zstd.patch` to accept zstd layers and manifests whose media type is supplied only by the HTTP header. It also accepts and writes the standard `sha256:` digest prefix so Renovate can manage the pin directly. Python 3.14 or later is required for zstd extraction; the pinned builder provides it. Remove this patch once the upstream plugin supports these formats and the prefixed digest syntax.
 
 The shared official-plugin junction selects release 2.8.0. Its upstream OCI media-type support replaces that portion of our original patch. As of October 18, 2026, upstream still lacks the HTTP Content-Type fallback, zstd layer acceptance and prefixed refs; no issue or PR covering those additions was found.
 
-Once Dakota publishes signed production images, their kernel/module signatures can be preserved by this same import. Signed EFI binaries, enrollment, EFI partition maintenance and installer integration remain separate work.
+The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot bring-up](secure-boot.md) for enrollment and the validation still needed before deployment.
 
 BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker:29.9.1-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
@@ -160,8 +160,8 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 
 ## Upstream references
 
-- [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/a50b8c9de35f51c6a646c8178cde3c2c176725b6)
-- [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/53191a4787fee1fc44b0447cfd90290b042ae3b5)
+- [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/1808f094d469291bdd85cc92a1a08f07aac6f6a6)
+- [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/e59afbe788e441fc1fad560c01fa4dbc267d60d8)
 - [Official Docker image recipe](https://github.com/docker-library/docker/tree/master/29)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 

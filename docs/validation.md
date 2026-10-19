@@ -1,5 +1,18 @@
 # Bring-up status
 
+## Signed boot integration, October 18, 2026
+
+- Dakota recipes are pinned to merged Secure Boot commit `e59afbe788e441fc1fad560c01fa4dbc267d60d8`. The boot payload independently uses the production `testing` image at revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`, amd64 digest `sha256:4697e6606ae5c23b58e24c2001654af60a614d977d23d37cc9358baa17d103a7`.
+- The signed import and full OS image build pass. The import verifies kernel and EFI signatures against Dakota's certificate, requires module signatures and checks kernel security capabilities. No kernel compilation or private signing elements are involved. Bootc container lint reports 13 passed checks and one skipped check.
+- Exported and installed OS manifest `sha256:b879cb1bb871fa2e85e585ceb7275ee7296a3c60fe0570f813b43f7e819ba164`, using Linux 7.2.9. All 4,345 modules, the kernel, EFI binaries and certificate match the imported artifact byte for byte. All 426 modules included in our generated initramfs retain their original bytes; the final image contains that same initramfs. Dakota's certificate SHA-256 is `b261aa6adf2702563105b6db8234729e4f7a384a7b5e7f5e32c46c8153b0d7c`.
+- Installed onto a disposable 48 GiB disk using a helper VM. Booted through QEMU's Secure Boot capable OVMF firmware with SMM, a persistent software TPM 2.0 and an emulated Intel IOMMU. Ran Dakota's enrollment command, approved its certificate in MokManager, then enabled firmware Secure Boot with Microsoft's UEFI certificates. Dakota's key is in MOK, not the firmware trust database.
+- The enforced boot reaches GNOME Initial Setup with no failed services. `bootctl` reports Secure Boot enabled and the current loader under `EFI/dakota`. Dakota's checker reports eight passes and two waits for Epic recognizing the Dakota key. TPM PCRs 9 and 12 are nonzero; lockdown is integrity, kexec is disabled, BPF LSM is active and virtual IOMMU translation is enabled. This is a conventional kernel/initramfs boot, not a measured UKI.
+- A signed `dummy` module loads successfully. Removing its signature makes insertion fail with `Key was rejected by service`; the kernel records `Loading of unsigned module is rejected`.
+- The enabled maintenance service restores a deliberately stale Dakota EFI bootloader and a missing fwupd shim copy to the image's bytes. The fallback shim also matches. A one-shot direct boot of `EFI/systemd/systemd-bootx64.efi` bypassing shim fails with firmware `Access Denied`, then the normal shim chain boots successfully again.
+- The installer completes with exit zero despite the same fs-verity corruption diagnostic recorded during Docker testing. The installed image boots successfully afterward; that diagnostic remains unresolved. GNOME Initial Setup's session also reaches its shutdown timeout on the first normal reboot.
+- Dependency-graph resolution, edited YAML/TOML parsing, shell syntax and whitespace checks pass. Evidence and the powered-off VM remain under ignored `build/secureboot`. No host firmware, boot entries, installed OS or disk encryption state was changed.
+- OS update/rollback under Secure Boot, actual fwupd capsule execution, hardware TPM/IOMMU state, TPM-encrypted disk unlock and EAC/game acceptance remain untested. [Secure Boot bring-up](secure-boot.md) describes the remaining checks. A VM and Dakota's diagnostic cannot establish Epic's key acceptance.
+
 ## Docker image import, October 18, 2026
 
 - Started from local `main` at `142d756`, independently of the kernel worktree. Reused its shared plugin prerequisite: BuildStream plugins 2.8.0, direct release/commit pins for both plugin junctions, and the same OCI compatibility patch. No kernel recipe or source pins changed.
@@ -15,21 +28,6 @@ Before opening the PR, rebooted the installed disk and reran the corrected full 
 Evidence, temporary test scripts, and the powered-off VM are retained under ignored `build/docker-import`. The first test attempts exposed two fixture assumptions, Alpine lacking `httpd` and the OS lacking `runuser`. The successful checks used the official BusyBox image for HTTP and systemd to run Podman as the regular user. No OS packaging adjustment was needed for those fixtures.
 
 The installer and a later read of stored image objects logged fs-verity `FILE CORRUPTED` diagnostics. The affected objects map to the unchanged QEMU binary, Rusticl and SVT-AV1 libraries, and kernel `vmlinux`. Reads returned hashes matching the composed image, and the Docker runtime checks passed, but the diagnostics remain unexplained. This was not a clean-log VM run. Existing Docker data migration, a cold CI build, non-amd64 platforms, and an OS update/rollback were not tested.
-
-## Dakota OCI kernel import, October 18, 2026
-
-- Imported the regular amd64 Dakota image at `sha256:bd5b60fa1afe62fcfc6ca6607c95af5fa66a622aae0ba5566cdacc099f73fa13`, published from source commit `bd5d9137bcbc0d9508698172767fcf33a8265572`. The recipe junction retains main's `5fe625712433e902124eedf5ec2c82880dbcaddc` pin, which differs from that image revision only in a Prow workflow.
-- The pinned BuildStream docker plugin fetched all 120 OCI/zstd layers with the local format-compatibility patch. Compressed layer downloads total about 3.73 GB. The extracted artifact is about 638 MiB and contains only `/usr/lib/modules/7.2.9`, including 4,345 compressed modules, with Dakota's initramfs removed.
-- The kernel import built without compiling Linux. GNOME's OCI initramfs built from the imported modules. Unpacking it confirmed that its Btrfs module is byte-for-byte identical to the imported module. The initramfs SHA-256 is `7902cfa7491dd5d74c429e552e54d55ef3d5c61a760eec435c18645e623cedb8`.
-- Simplified the import to track the image's `testing` channel independently through Renovate's Docker datasource. Removed the registry-sync hook and the unused GNOME kernel-build override, and restored the original Dakota recipe pin. All resolved artifact keys still match the VM-tested image, and a follow-up full-image build passed from cache.
-- Moved the shared plugin junctions to release tags pinned by Git commit, managed directly by Renovate. The official plugins now use 2.8.0; the community plugins retain 2.3.1. Removed GNOME's plugin-copying hook. The smaller downloader patch adds seven lines and removes five, and its executable Python AST matches the previously tested downloader exactly. All 978 artifact keys are unchanged, project validation passes, and the full image build succeeds from cache. Renovate 44.164.4 resolved both repositories' release commits and successfully updated/re-extracted disposable recipes, including a community-plugin update to 2.4.0. The checked-in community version remains 2.3.1. A disposable Git fixture with a deliberately incorrect Docker archive checksum exercised the remaining helper; it restored the exact pinned checksum without changing the other sources.
-- Compared the full graph with an untouched checkout of `main`: 969 existing artifact keys are unchanged. Only eight existing keys changed, all in initramfs and final-image assembly; the new import replaces the unsigned-module copier.
-- Project validation, shell and Node syntax checks, JSON parsing and diff whitespace checks passed. Renovate 44.164.4 validated the configuration, extracted the kernel dependency, resolved the live `testing` tag to its amd64 digest and successfully rewrote/re-extracted a disposable copy. BuildStream's source tracking also returned that digest with the standard prefix. The checked-in pin remains the VM-tested image.
-- The full OCI image built successfully with no failed tasks. Its manifest is `sha256:099f23c97c06c708776ee23d1606eed50e6b7cc75e15d1d1f35352c9f202c944`. The image passed `bootc container lint` with 13 checks passed and one skipped. A temporary local configuration gave Bluefin's cache priority after stalled downloads; the checked-in cache settings are unchanged.
-- Installed that image onto a fresh 48 GiB virtual disk using bootc, composefs, Btrfs and systemd-boot. The installer completed successfully. The installed disk booted through UEFI without a directly supplied kernel or helper root, reached GNOME initial setup, and reported Linux 7.2.9. GDM and the graphical target were active with no failed system units. The booted kernel SHA-256 matches the imported file.
-- A guest reboot changed the boot ID, retained a marker in `/var/tmp`, and returned to Linux 7.2.9 with GDM and the graphical target active and no failed system units. The kernel hash and Btrfs module version still matched after reboot.
-- The VM uses the local test origin `localhost/personal-os:dev`. It does not validate registry updates, the ISO installer or Secure Boot enforcement.
-- Evidence is under the ignored `build/oci-kernel` directory. The current image is unsigned; Secure Boot enrollment, signed EFI binaries, enforced boot and update/rollback validation await integration with Dakota's merged signing work. EAC acceptance has not been tested.
 
 ## Docker and firewalld, September 20, 2026
 
@@ -100,12 +98,12 @@ The boot journal still has upstream initramfs warnings about groups absent from 
 
 ## Remaining acceptance work
 
-The first standard-runner CI build passed on September 18, 2026 and published the original kernel baseline to GHCR. It took 2h03m, pulling 695 artifacts and building 20; Linux 7.2.2 compilation took 77 minutes. The workflow uses upstream caches without preserving local artifacts between runs. The Dakota kernel switch has been checked locally but has not yet run in CI.
+The first standard-runner CI build passed on September 18, 2026 and published the original kernel baseline to GHCR. It took 2h03m, pulling 695 artifacts and building 20; Linux 7.2.2 compilation took 77 minutes. The workflow uses upstream caches without preserving local artifacts between runs. The signed OCI kernel import has passed local build and VM checks; its first CI build will run after merge.
 
 - Publish successive images and verify fetching, staging, rebooting into an update and rolling back. The current `localhost/personal-os:dev` origin is a placeholder, and automatic apply/reboot remains disabled.
 - Adapt an end-user installer and test its account provisioning, origin selection and offline media. The temporary VM installer is not a distributable installer.
-- Test accelerated graphics and real audio output, hardware support, Secure Boot signing and an actual libvirt guest. This run used software graphics and a discarded audio backend.
-- Test Tailscale enrollment, browser credential storage, VS Code extensions and login callbacks, and application data across an OS update.
+- Test accelerated graphics and real audio output, hardware support, Secure Boot enrollment on physical hardware and an actual libvirt guest. This run used software graphics and a discarded audio backend.
+- Test Tailscale enrollment, browser credential storage and login callbacks, and application data across an OS update.
 - Test Flatpak retries after a fresh offline boot, changes to preinstall declarations across an OS update, and Sushi previews on removable drives and network mounts.
 
 These checks were not inferred from successful builds or VM startup.

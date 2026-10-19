@@ -24,4 +24,4 @@ config:
     core/meta-gnome-core-apps.bst: core/apps.bst
     oci/integration/os-release.bst: core/os-release.bst
     # Share the published kernel/modules between the OS and its initramfs.
-    gnomeos/initramfs/signed-modules.bst: core/dakota-kernel.bst
+    gnomeos/initramfs/signed-modules.bst: core/dakota-boot.bst

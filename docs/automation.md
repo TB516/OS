@@ -1,10 +1,10 @@
 # Dependency updates and publishing
 
-`renovate.yml` runs daily or manually and opens update PRs. `build.yml` runs only on pushes to `main`, including merged PRs. It builds the OS, runs `bootc container lint`, and publishes `ghcr.io/tb516/os:latest`, a `sha-<commit>` tag and a `YYYYMMDD.N` version tag. `installer.yml` runs only when manually dispatched and publishes an installer prerelease. None runs on PR events.
+`renovate.yml` runs daily or manually and opens update PRs. `build.yml` runs only on pushes to `main`, including merged PRs. It builds the OS, runs `bootc container lint`, and publishes `ghcr.io/tb516/os:latest`, a `sha-<commit>` tag and a `YYYYMMDD.N` version tag. `installer.yml` runs only when manually dispatched and publishes an installer prerelease. `validate.yml` resolves the dependency graph on PRs that change build inputs; it does not build the OS.
 
 The version uses the UTC date when the build starts. `N` is one more than the largest matching version tag already published to GHCR, so the first published image on September 21, 2026 is `20260921.1`. Failed and cancelled builds do not reserve a number. A rerun only advances the counter if its previous attempt published the version tag. CI writes this version into the image before BuildStream starts. It appears in `os-release`, the OCI metadata and the boot image selector as, for example, `Personal OS 20260921.1`.
 
-The build uses standard GitHub-hosted Ubuntu runners and upstream BuildStream caches, without preserving local artifacts between runs. Its first GitHub run still needs to establish whether the runner has enough disk space and time.
+The build uses standard GitHub-hosted Ubuntu runners and upstream BuildStream caches, without preserving local artifacts between runs. Full builds have already completed successfully on those runners.
 
 Publication uses Red Hat's `push-to-registry` Action. It reuses the image already imported into Podman for bootc validation, then publishes the version, commit and `latest` tags. The workflow's `IMAGE_NAME` is `tb516/os`; keep it aligned with `include/image.yml` if the repository moves. Renovate tracks the publishing Action's pinned revision.
 
@@ -32,6 +32,6 @@ The shared BuildStream plugin junctions have their own release tags and commit p
 
 GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
 
-The kernel image in `elements/core/dakota-kernel.bst` independently follows Dakota's `testing` channel with an exact amd64 manifest digest. Kernel and modules come from the same image; the Dakota recipe pin does not have to match its source revision.
+The kernel image in `elements/core/dakota-boot.bst` independently follows Dakota's `testing` channel with an exact amd64 manifest digest. Kernel, modules, signed EFI binaries and signing certificate come from the same image; the Dakota recipe pin does not have to match its source revision.
 
 Review GNOME/Dakota compatibility and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.
