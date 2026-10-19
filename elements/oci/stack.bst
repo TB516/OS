@@ -3,6 +3,7 @@ kind: stack
 depends:
 - core/desktop.bst
 - core/config.bst
+- core/secure-boot.bst
 - core/os-release.bst
 - gnome.bst:gnomeos/initramfs/signed-modules.bst
 - gnome.bst:oci/initramfs/image.bst

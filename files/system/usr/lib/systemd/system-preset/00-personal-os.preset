@@ -6,6 +6,8 @@ disable systemd-homed-firstboot.service
 disable systemd-sysupdate*.service
 disable systemd-sysupdate*.timer
 enable bootc-fetch-apply-updates.timer
+# Maintain the shim chain after Dakota key enrollment.
+enable dakota-secure-boot-update.service
 enable systemd-resolved.service
 enable global-preset-all.service
 

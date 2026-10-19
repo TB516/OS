@@ -44,9 +44,10 @@ Adapt Dakota's installer when the image is ready for installation. The installer
 
 ## Remaining milestones
 
-1. Set up reviewed dependency-update PRs and CI builds with artifact caching, then publish images to GHCR.
-2. Publish successive image versions and demonstrate staged updates and rollback without automatic reboots.
-3. Adapt the installer and verify a fresh installation, its update origin, and a subsequent update-and-rollback cycle.
-4. Complete hardware and external-integration acceptance, including accelerated graphics, audible output, Tailscale enrollment and running libvirt guests.
+Dependency-update PRs and CI publication to GHCR are in place.
+
+1. Publish successive image versions and demonstrate staged updates and rollback without automatic reboots.
+2. Verify a fresh installation through the adapted installer, its update origin, and a subsequent update-and-rollback cycle.
+3. Complete hardware and external-integration acceptance, including accelerated graphics, audible output, Tailscale enrollment and running libvirt guests.
 
 The full image builds, installs and boots through systemd-boot into a GNOME Wayland session. Initial setup, native apps, default Flatpaks, PDF previews, container networking and persistence across reboot have passed VM checks. Keep exact results and limits in the validation notes rather than treating this roadmap as evidence of completion.

@@ -1,5 +1,18 @@
 # Bring-up status
 
+## Signed boot integration, October 18, 2026
+
+- Dakota recipes are pinned to merged Secure Boot commit `e59afbe788e441fc1fad560c01fa4dbc267d60d8`. The boot payload independently uses the production `testing` image at revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`, amd64 digest `sha256:4697e6606ae5c23b58e24c2001654af60a614d977d23d37cc9358baa17d103a7`.
+- The signed import and full OS image build pass. The import verifies kernel and EFI signatures against Dakota's certificate, requires module signatures and checks kernel security capabilities. No kernel compilation or private signing elements are involved. Bootc container lint reports 13 passed checks and one skipped check.
+- Exported and installed OS manifest `sha256:b879cb1bb871fa2e85e585ceb7275ee7296a3c60fe0570f813b43f7e819ba164`, using Linux 7.2.9. All 4,345 modules, the kernel, EFI binaries and certificate match the imported artifact byte for byte. All 426 modules included in our generated initramfs retain their original bytes; the final image contains that same initramfs. Dakota's certificate SHA-256 is `b261aa6adf2702563105b6db8234729e4f7a384a7b5e7f5e32c46c8153b0d7c`.
+- Installed onto a disposable 48 GiB disk using a helper VM. Booted through QEMU's Secure Boot capable OVMF firmware with SMM, a persistent software TPM 2.0 and an emulated Intel IOMMU. Ran Dakota's enrollment command, approved its certificate in MokManager, then enabled firmware Secure Boot with Microsoft's UEFI certificates. Dakota's key is in MOK, not the firmware trust database.
+- The enforced boot reaches GNOME Initial Setup with no failed services. `bootctl` reports Secure Boot enabled and the current loader under `EFI/dakota`. Dakota's checker reports eight passes and two waits for Epic recognizing the Dakota key. TPM PCRs 9 and 12 are nonzero; lockdown is integrity, kexec is disabled, BPF LSM is active and virtual IOMMU translation is enabled. This is a conventional kernel/initramfs boot, not a measured UKI.
+- A signed `dummy` module loads successfully. Removing its signature makes insertion fail with `Key was rejected by service`; the kernel records `Loading of unsigned module is rejected`.
+- The enabled maintenance service restores a deliberately stale Dakota EFI bootloader and a missing fwupd shim copy to the image's bytes. The fallback shim also matches. A one-shot direct boot of `EFI/systemd/systemd-bootx64.efi` bypassing shim fails with firmware `Access Denied`, then the normal shim chain boots successfully again.
+- The installer completes with exit zero despite the same fs-verity corruption diagnostic recorded during Docker testing. The installed image boots successfully afterward; that diagnostic remains unresolved. GNOME Initial Setup's session also reaches its shutdown timeout on the first normal reboot.
+- Dependency-graph resolution, edited YAML/TOML parsing, shell syntax and whitespace checks pass. Evidence and the powered-off VM remain under ignored `build/secureboot`. No host firmware, boot entries, installed OS or disk encryption state was changed.
+- OS update/rollback under Secure Boot, actual fwupd capsule execution, hardware TPM/IOMMU state, TPM-encrypted disk unlock and EAC/game acceptance remain untested. [Secure Boot bring-up](secure-boot.md) describes the remaining checks. A VM and Dakota's diagnostic cannot establish Epic's key acceptance.
+
 ## Docker image import, October 18, 2026
 
 - Started from local `main` at `142d756`, independently of the kernel worktree. Reused its shared plugin prerequisite: BuildStream plugins 2.8.0, direct release/commit pins for both plugin junctions, and the same OCI compatibility patch. No kernel recipe or source pins changed.
@@ -85,12 +98,12 @@ The boot journal still has upstream initramfs warnings about groups absent from 
 
 ## Remaining acceptance work
 
-The first standard-runner CI build passed on September 18, 2026 and published the original kernel baseline to GHCR. It took 2h03m, pulling 695 artifacts and building 20; Linux 7.2.2 compilation took 77 minutes. The workflow uses upstream caches without preserving local artifacts between runs. The Dakota kernel switch has been checked locally but has not yet run in CI.
+The first standard-runner CI build passed on September 18, 2026 and published the original kernel baseline to GHCR. It took 2h03m, pulling 695 artifacts and building 20; Linux 7.2.2 compilation took 77 minutes. The workflow uses upstream caches without preserving local artifacts between runs. The signed OCI kernel import has passed local build and VM checks; its first CI build will run after merge.
 
 - Publish successive images and verify fetching, staging, rebooting into an update and rolling back. The current `localhost/personal-os:dev` origin is a placeholder, and automatic apply/reboot remains disabled.
 - Adapt an end-user installer and test its account provisioning, origin selection and offline media. The temporary VM installer is not a distributable installer.
-- Test accelerated graphics and real audio output, hardware support, Secure Boot signing and an actual libvirt guest. This run used software graphics and a discarded audio backend.
-- Test Tailscale enrollment, browser credential storage, VS Code extensions and login callbacks, and application data across an OS update.
+- Test accelerated graphics and real audio output, hardware support, Secure Boot enrollment on physical hardware and an actual libvirt guest. This run used software graphics and a discarded audio backend.
+- Test Tailscale enrollment, browser credential storage and login callbacks, and application data across an OS update.
 - Test Flatpak retries after a fresh offline boot, changes to preinstall declarations across an OS update, and Sushi previews on removable drives and network mounts.
 
 These checks were not inferred from successful builds or VM startup.

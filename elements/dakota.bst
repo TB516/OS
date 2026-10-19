@@ -5,15 +5,17 @@ sources:
   url: github:projectbluefin/dakota.git
   # renovate: datasource=git-refs depName=projectbluefin/dakota packageName=https://github.com/projectbluefin/dakota.git
   track: testing
-  ref: 5fe625712433e902124eedf5ec2c82880dbcaddc
+  ref: e59afbe788e441fc1fad560c01fa4dbc267d60d8
 
 config:
   options:
     arch: '%{arch}'
     x86_64_v3: false
     gaming: false
+    # Sign only upstream; consume the published signatures here.
+    secure_boot_signing: false
   overrides:
-    # Share GNOME's dependency graph; gnome.bst selects Dakota's regular kernel.
+    # Share GNOME's dependency graph for the borrowed Dakota recipes.
     gnome-build-meta.bst: gnome.bst
     freedesktop-sdk.bst: gnome.bst:freedesktop-sdk.bst
     plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst
