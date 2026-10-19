@@ -12,7 +12,7 @@ For a native BuildStream installation with its source-plugin prerequisites, use:
 bst --config buildstream.conf show oci/image.bst
 ```
 
-BuildStream 2.6 or later is required. Validation used 2.7 in the builder container. Native installations also need the `buildstream-plugins` Python package for Git source support and source-plugin tools such as `git` and `patch`.
+BuildStream 2.6 or later is required. Validation uses 2.8 in the pinned builder container. Native installations also need the `buildstream-plugins` Python package for the Git source used to fetch the plugin junctions, plus source-plugin tools such as `git` and `patch`.
 
 The OS uses the baseline x86_64 target. x86-64-v3 is disabled in both the GNOME and Dakota junctions to match their normal upstream builds and improve artifact-cache reuse. GNOME passes this option through to freedesktop-sdk.
 
@@ -82,11 +82,17 @@ Local stacks own the session, native application selection, boot configuration a
 
 Settings, initial setup and the SDK platform use their upstream recipes. Parental controls and the Yelp Help viewer remain included to avoid maintaining custom recipes for these optional components.
 
-Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the unsigned kernel-module copier, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
+Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the kernel and modules, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
-The kernel is Dakota's regular freedesktop-sdk-derived kernel, selected at the GNOME junction so the image, modules and initramfs share it. The pinned Dakota testing recipe supplies Linux 7.2.6 with additional hardware drivers and built-in Zstd compression. GNOME's zram configuration stays in place. GNOME supplies bootc 1.16.6; this definition does not take Dakota's 1.16.12 override without a demonstrated need. The initial image has no Secure Boot signing setup.
+The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-kernel.bst`. The GNOME junction selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The image has no Secure Boot enrollment or signed bootloader setup yet.
 
-The selected kernel's artifact key matches Dakota's pinned build and was successfully pulled from Bluefin's cache. The previous GNOME kernel missed upstream caches because its module-certificate inputs differed from GNOME CI. Reusing Dakota's artifact avoids that compilation without a project-owned cache. Future pin changes can still cause cache misses.
+The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. The current published pin is Linux 7.2.9 and is unsigned. Fetching it downloads the whole Dakota image, but only `/usr/lib/modules/<release>` enters the kernel artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
+
+The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-oci-zstd.patch` to accept zstd layers and manifests whose media type is supplied only by the HTTP header. It also accepts and writes the standard `sha256:` digest prefix so Renovate can manage the pin directly. Python 3.14 or later is required for zstd extraction; the pinned builder provides it. Remove this patch once the upstream plugin supports these formats and the prefixed digest syntax.
+
+The shared official-plugin junction selects release 2.8.0. Its upstream OCI media-type support replaces that portion of our original patch. As of October 18, 2026, upstream still lacks the HTTP Content-Type fallback, zstd layer acceptance and prefixed refs; no issue or PR covering those additions was found.
+
+Once Dakota publishes signed production images, their kernel/module signatures can be preserved by this same import. Signed EFI binaries, enrollment, EFI partition maintenance and installer integration remain separate work.
 
 BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker:29.9.1-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
@@ -159,4 +165,4 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 - [Official Docker image recipe](https://github.com/docker-library/docker/tree/master/29)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 
-The image assembly follows the GNOME and Dakota recipes at those revisions. The shared plugin junctions are pinned separately from GNOME. Upstream components retain their own licenses.
+The image assembly follows the GNOME and Dakota recipes at those revisions. The shared plugin junctions follow upstream release tags, independently of GNOME and Dakota. Upstream components retain their own licenses.

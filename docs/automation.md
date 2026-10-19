@@ -32,4 +32,6 @@ The shared BuildStream plugin junctions have their own release tags and commit p
 
 GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
 
+The kernel image in `elements/core/dakota-kernel.bst` independently follows Dakota's `testing` channel with an exact amd64 manifest digest. Kernel and modules come from the same image; the Dakota recipe pin does not have to match its source revision.
+
 Review GNOME/Dakota compatibility and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.

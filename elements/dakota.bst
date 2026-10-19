@@ -13,7 +13,7 @@ config:
     x86_64_v3: false
     gaming: false
   overrides:
-    # Share GNOME's dependency graph; gnome.bst selects Dakota's regular kernel.
+    # Share GNOME's dependency graph for the borrowed Dakota recipes.
     gnome-build-meta.bst: gnome.bst
     freedesktop-sdk.bst: gnome.bst:freedesktop-sdk.bst
     plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst
