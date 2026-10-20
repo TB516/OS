@@ -1,6 +1,10 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
+  "extends": [
+    "config:recommended",
+    "helpers:githubDigestChangelogs",
+    "helpers:gitlabDigestChangelogs"
+  ],
   "enabledManagers": [
     "github-actions",
     "custom.regex"
@@ -46,6 +50,31 @@
     }
   ],
   "packageRules": [
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["quay.io/coreos/chunkah"],
+      "sourceUrl": "https://github.com/coreos/chunkah"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["docker.io/library/docker"],
+      "changelogUrl": "https://docs.docker.com/engine/release-notes/"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2"],
+      "sourceUrl": "https://gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images"
+    },
+    {
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["ghcr.io/projectbluefin/dakota"],
+      "commitMessageTopic": "Dakota kernel and Secure Boot files",
+      "addLabels": ["kernel"],
+      "sourceUrl": "https://github.com/projectbluefin/dakota",
+      "prBodyNotes": [
+        "Updates the signed kernel, matching modules and Secure Boot files imported from Dakota's image. Other Dakota recipes are pinned separately."
+      ]
+    },
     {
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["action"],
