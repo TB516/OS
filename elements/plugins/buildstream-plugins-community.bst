@@ -4,5 +4,5 @@ sources:
 - kind: git
   url: gitlab:BuildStream/buildstream-plugins-community.git
   # renovate: datasource=gitlab-tags depName=BuildStream/buildstream-plugins-community
-  track: 2.3.1
-  ref: d9b0336d17d33c0ee9ee66953383b312dcfc12c0
+  track: 2.4.0
+  ref: b28c77c4bbfa85e17fff2f3bfc71b15801e72d70
