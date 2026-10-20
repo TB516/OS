@@ -1,0 +1,55 @@
+From: Personal OS maintainers
+Subject: [PATCH] Use Personal OS for the enrollment command and boot label
+
+Keep Dakota's signing and EFI paths. Install the helper under our name,
+update its service, and label newly created firmware entries Personal OS.
+
+diff --git a/elements/bluefin/secure-boot-tools.bst b/elements/bluefin/secure-boot-tools.bst
+--- a/elements/bluefin/secure-boot-tools.bst
++++ b/elements/bluefin/secure-boot-tools.bst
+@@ -16,7 +16,7 @@
+ 
+ config:
+   install-commands:
+-  - install -Dm755 dakota-secure-boot "%{install-root}/usr/libexec/dakota-secure-boot"
++  - install -Dm755 dakota-secure-boot "%{install-root}/usr/libexec/personal-os-secure-boot"
+   - install -Dm644 dakota-secure-boot-update.service "%{install-root}/usr/lib/systemd/system/dakota-secure-boot-update.service"
+   - mkdir -p "%{install-root}/usr/lib/systemd/system/multi-user.target.wants"
+   - ln -s ../dakota-secure-boot-update.service "%{install-root}/usr/lib/systemd/system/multi-user.target.wants/dakota-secure-boot-update.service"
+diff --git a/files/secure-boot/dakota-secure-boot-update.service b/files/secure-boot/dakota-secure-boot-update.service
+--- a/files/secure-boot/dakota-secure-boot-update.service
++++ b/files/secure-boot/dakota-secure-boot-update.service
+@@ -7,7 +7,7 @@
+ 
+ [Service]
+ Type=oneshot
+-ExecStart=/usr/libexec/dakota-secure-boot update
++ExecStart=/usr/libexec/personal-os-secure-boot update
+ 
+ [Install]
+ WantedBy=multi-user.target
+diff --git a/files/secure-boot/dakota-secure-boot b/files/secure-boot/dakota-secure-boot
+--- a/files/secure-boot/dakota-secure-boot
++++ b/files/secure-boot/dakota-secure-boot
+@@ -117,10 +117,10 @@
+         disk="/dev/$(lsblk -no PKNAME "$dev")"
+         part="$(cat "/sys/class/block/$(basename "$dev")/partition")"
+         efibootmgr --quiet --create --disk "$disk" --part "$part" \
+-            --label "Dakota" --loader "$loader"
++            --label "Personal OS" --loader "$loader"
+         num="$(boot_entry)"
+         [ -n "$num" ] || die "could not create the firmware boot entry"
+-        echo "created firmware boot entry Boot$num (Dakota)"
++        echo "created firmware boot entry Boot$num (Personal OS)"
+     fi
+     order="$(efibootmgr | sed -n 's/^BootOrder: //p')"
+     if [ "${order%%,*}" != "$num" ]; then
+@@ -633,7 +633,7 @@
+     check) cmd_check ;;
+     reseal) cmd_reseal ;;
+     *)
+-        echo "usage: dakota-secure-boot enroll|update|status|check|reseal" >&2
++        echo "usage: ${0##*/} enroll|update|status|check|reseal" >&2
+         exit 2
+         ;;
+ esac
