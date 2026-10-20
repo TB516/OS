@@ -28,3 +28,13 @@ jobs:
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
           renovate-version: 44.169.0
+
+      - name: Report kernel changes
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        timeout-minutes: 10
+        with:
+          github-token: ${{ secrets.RENOVATE_TOKEN }}
+          script: |
+            const path = `${process.env.GITHUB_WORKSPACE}/scripts/kernel-report.ts`;
+            const { default: report } = await import(path);
+            await report({ github, context, core });

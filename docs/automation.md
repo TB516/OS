@@ -34,4 +34,12 @@ GNOME and Dakota track their existing Git branches. Container images and Actions
 
 The kernel image in `elements/core/dakota-boot.bst` independently follows Dakota's `testing` channel with an exact amd64 manifest digest. Kernel, modules, signed EFI binaries and signing certificate come from the same image; the Dakota recipe pin does not have to match its source revision.
 
+## Kernel update reports
+
+After Renovate finishes, the same workflow imports `scripts/kernel-report.ts` as an ES module through `actions/github-script`, which supplies its runtime and authenticated GitHub client. It refreshes one comment on each open Renovate PR that changes the kernel image. Other updates use Renovate's normal release notes and comparison links. The report reads image metadata and attached SBOMs; it does not build or download image filesystem layers.
+
+Kernel updates show image build timestamps, Dakota source revisions, kernel source versions and changes to the kernel's recorded patch/configuration inputs. The SBOM can arrive after image publication. Missing metadata is reported and retried on the next daily or manual Renovate run. Matching source inputs do not establish that compiled files or signatures are identical.
+
+The report uses the workflow's existing `RENOVATE_TOKEN`. It includes the PR revision and skips publishing if that revision changed during generation. Existing comments are updated only when their content changes. A temporary fetch failure preserves an existing successful report for the same PR revision.
+
 Review GNOME/Dakota compatibility and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.
