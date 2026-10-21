@@ -10,11 +10,11 @@ The initial base is GNOME 51 and freedesktop-sdk 26.08, using baseline x86_64. D
 
 x86-64-v3 was tried during bring-up, then disabled because upstream GNOME and Dakota CI use the baseline target. Reusing upstream artifacts takes priority over CPU-specific compilation, especially for future hosted CI builds.
 
-Dakota tracks `testing` with a fixed commit. The initial `next` pin was replaced after confirming that the borrowed components were identical on `testing`; the rolling branch was unnecessary for the pinned GNOME 51 base.
+Dakota is pinned to commits on its `testing` branch whose CI build succeeded. Its rolling `next` branch follows GNOME's development branch and is not used.
 
 ## Composition decisions
 
-- Keep one shared GNOME/freedesktop-sdk graph. Pin compatible upstream revisions and review them together when updating.
+- Take GNOME and freedesktop-sdk through Dakota's junctions and pin only Dakota, so the graph matches the artifacts Dakota's CI caches. This also accepts Dakota's GNOME-level choices, such as its boot splash and bootc.
 - Own the final composition locally. Reuse individual Dakota elements through a junction without importing `bluefin/deps.bst` or `bluefin/common.bst`.
 - Use public artifact and source caches read-only. Preserve upstream recipes where possible, but let image requirements determine composition.
 - Build one complete OS image. The initial split into two editions was removed to keep builds and validation focused on the system that will be used.
@@ -24,8 +24,6 @@ Dakota tracks `testing` with a fixed commit. The initial `next` pin was replaced
 
 GNOME supplies the desktop session and host integration. Flatpak is the normal GUI application format, with Bazaar as the store and an explicit default application list. Files and Disks are native applications. Sushi is selected as a default Flatpak for file previews. PDF thumbnails are omitted so the image does not need native Papers or a separate extraction recipe.
 
-Helium and Microsoft Visual Studio Code were initially included as native applications for host integration. They have since been removed from the image.
-
 Use Flatpak's built-in `.preinstall` declarations and a boot service, following Dakota's approach. The default set includes the app store, system monitor, file previews, GNOME extension management, GNOME tweaks, Flatpak permission management and journal viewing. Flatpak owns installation state and respects manual removals; changes to the default selection do not require maintaining a custom installer or completion marker.
 
 Keep parental controls and Help as supplied by upstream. An initial attempt to exclude them required modifying three GNOME recipes; maintaining those changes was not worth the smaller application selection. GNOME user documentation remains excluded through the local session list. Keep sharing services, remote desktop, accessibility and color management.
@@ -34,7 +32,7 @@ Ghostty is image-managed and supplies the preferred terminal integration. Distro
 
 Tailscale and QEMU/libvirt belong in the image because they need host services. Selected Dakota elements also provide resolver integration, the composefs disk-visibility rule and the PC-speaker audio rule.
 
-The initial implementation keeps bootc install defaults local to select Btrfs. It retains GNOME's bootc version and zram defaults. Exact pins and recipe ownership are documented in the [build guide](building.md).
+The initial implementation keeps bootc install defaults local to select Btrfs. It uses Dakota's bootc and GNOME's zram defaults. Exact pins and recipe ownership are documented in the [build guide](building.md).
 
 ## Deployment decisions
 
@@ -50,4 +48,4 @@ Dependency-update PRs and CI publication to GHCR are in place.
 2. Verify a fresh installation through the adapted installer, its update origin, and a subsequent update-and-rollback cycle.
 3. Complete hardware and external-integration acceptance, including accelerated graphics, audible output, Tailscale enrollment and running libvirt guests.
 
-The full image builds, installs and boots through systemd-boot into a GNOME Wayland session. Initial setup, native apps, default Flatpaks, PDF previews, container networking and persistence across reboot have passed VM checks. Keep exact results and limits in the validation notes rather than treating this roadmap as evidence of completion.
+The full image builds, installs and boots through systemd-boot into a GNOME Wayland session. Initial setup, native apps, default Flatpaks, container networking and persistence across reboot have passed VM checks. Keep exact results and limits in the validation notes rather than treating this roadmap as evidence of completion.

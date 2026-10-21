@@ -68,13 +68,7 @@ The GitHub build workflow publishes on pushes to `main`. See [automation](automa
 
 See [design history](plan.md) for the composition decisions and remaining milestones.
 
-| Input | Pinned revision |
-| --- | --- |
-| Dakota `testing` | `bb14777d9806c3924f5815712b92eb8c8125f95a` |
-| GNOME `gnome-51`, through Dakota | `24bd9e3394437b85fc204bf58ecd3d867d815f66` (51.1) |
-| freedesktop-sdk, through Dakota | `32c5fea70e827885fc805d38a9dc5716c39ed173`, tag `freedesktop-sdk-26.08.2` |
-
-`elements/dakota.bst` is the only base pin. Dakota owns the GNOME and freedesktop-sdk junctions, including their patch queues and overrides, so our artifacts match the ones Dakota's CI pushes to the Bluefin cache. Local elements refer to them as `dakota.bst:gnome-build-meta.bst:…` and `dakota.bst:freedesktop-sdk.bst:…`. Our junction settings override the GNOME apps list, os-release and boot modules inside Dakota's GNOME junction. Dakota and GNOME share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
+`elements/dakota.bst` pins a commit on Dakota's `testing` branch and is the only base pin. Dakota owns the GNOME and freedesktop-sdk junctions, including their patch queues and overrides, so our artifacts match the ones Dakota's CI pushes to the Bluefin cache. Local elements refer to them as `dakota.bst:gnome-build-meta.bst:…` and `dakota.bst:freedesktop-sdk.bst:…`. Our junction settings override the GNOME apps list, os-release and boot modules inside Dakota's GNOME junction. Dakota and GNOME share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
 
 The graph therefore includes Dakota's GNOME-level choices: its Plymouth theme, bootc, Mesa and ffmpeg builds, initramfs modules and dnsmasq fix. Review those when updating the Dakota pin. Normal builds use the committed refs, not the tips of the tracking branches.
 
@@ -86,15 +80,13 @@ Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the kerne
 
 The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The Dakota junction's GNOME override selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
 
-The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. The source is the production `testing` image at Dakota revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`; the selected amd64 digest is `sha256:4697e6606ae5c23b58e24c2001654af60a614d977d23d37cc9358baa17d103a7`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
+The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
 
 The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-oci-zstd.patch` to accept zstd layers and manifests whose media type is supplied only by the HTTP header. It also accepts and writes the standard `sha256:` digest prefix so Renovate can manage the pin directly. Python 3.14 or later is required for zstd extraction; the pinned builder provides it. Remove this patch once the upstream plugin supports these formats and the prefixed digest syntax.
 
-The shared official-plugin junction selects release 2.8.0. Its upstream OCI media-type support replaces that portion of our original patch. As of October 18, 2026, upstream still lacks the HTTP Content-Type fallback, zstd layer acceptance and prefixed refs; no issue or PR covering those additions was found.
-
 The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot bring-up](secure-boot.md) for enrollment and the validation still needed before deployment.
 
-BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker:29.9.1-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
+BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker` `-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
 `mise-bootstrap.service` runs at user login and uses the official `https://mise.run` installer to install mise into `~/.local/bin/mise`. The installer selects the release and verifies its download. System accounts are excluded. An existing file at that path skips installation; failures retry every 15 minutes while the user manager is running. A successful installation is left alone on subsequent logins. Removing the binary makes it eligible for installation again; use `systemctl --user mask --now mise-bootstrap.service` to opt out first.
 
@@ -106,9 +98,9 @@ The image supplies Bash activation through `/etc/profile.d/mise.sh` and adds mis
 
 Alt+Tab switches between individual windows, while Super+Tab switches between applications, matching Dakota. Super+E opens the home folder in Files. Dash to Dock, AppIndicator tray icons and Custom Command Menu are installed from the pinned Dakota recipes and enabled by default. The menu sits at the top left and opens About, System Monitor, Settings, Home, Bazaar, Extension Manager and the terminal. Its entries live in the local dconf database because the extension loads its own bundled schemas. Dakota's menu recipe also installs distro dconf snippets, but this image's profile only reads the local database.
 
-Bazaar Companion is also installed and enabled by default. It adds App Details and Uninstall actions to Flatpak application menus, with App Details opening Bazaar. The image reuses Dakota's pinned extension and updates the uninstall dialog for GNOME 51's layout API, then adds 51 to its supported-version metadata. The menu actions still need testing in a running VM.
+Bazaar Companion is also installed and enabled by default. It adds App Details and Uninstall actions to Flatpak application menus, with App Details opening Bazaar. The image reuses Dakota's pinned extension and updates the uninstall dialog for GNOME 51's layout API, then adds 51 to its supported-version metadata.
 
-Gradia Capture is installed and enabled using Dakota's pinned build with GNOME 51 added to its metadata. It adds screenshot annotations; installing Gradia from Bazaar also enables its editor and OCR integration. Screenshot capture still needs testing in a running VM.
+Gradia Capture is installed and enabled using Dakota's pinned build with GNOME 51 added to its metadata. It adds screenshot annotations; installing Gradia from Bazaar also enables its editor and OCR integration.
 
 These defaults do not replace saved user settings after a rebase. If needed, enable the extensions in Extension Manager and reset the relevant shortcuts in Settings. The Home shortcut can also be restored with `gsettings reset org.gnome.settings-daemon.plugins.media-keys home`, and `gsettings reset org.gnome.shell enabled-extensions` replaces your saved enabled-extension list with this image's defaults. Saved menu customizations take precedence too.
 
@@ -134,7 +126,7 @@ At each boot, `flatpak-preinstall.service` runs `flatpak preinstall --system --n
 
 Flatpak tracks preinstalled apps itself and respects manual uninstalls. Changes to the declarations take effect on the next run, including removal of previously managed apps that are no longer declared. There is no separate installation marker or shell installer. Each Flatpak declares its own runtime. Bazaar can manage subsequent Flatpak updates. To retry immediately, run `sudo systemctl restart flatpak-preinstall.service`.
 
-The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal, Logs and GNOME Firmware. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. GNOME Firmware talks to the host fwupd service. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions. Verify these apps and preview activation in the VM before considering this integration complete.
+The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal, Logs and GNOME Firmware. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. GNOME Firmware talks to the host fwupd service. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions.
 
 The current update path is manual:
 
@@ -162,9 +154,9 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 
 ## Upstream references
 
-- [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/24bd9e3394437b85fc204bf58ecd3d867d815f66)
-- [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/bb14777d9806c3924f5815712b92eb8c8125f95a)
-- [Official Docker image recipe](https://github.com/docker-library/docker/tree/master/29)
+- [Dakota](https://github.com/projectbluefin/dakota)
+- [GNOME build metadata](https://gitlab.gnome.org/GNOME/gnome-build-meta)
+- [Official Docker image recipe](https://github.com/docker-library/docker)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 
-The image assembly follows the Dakota recipes, and the GNOME recipes Dakota selects, at those revisions. The shared plugin junctions follow upstream release tags, independently of Dakota. Upstream components retain their own licenses.
+The image assembly follows the Dakota recipes, and the GNOME recipes Dakota selects, at the pinned revision. The shared plugin junctions follow upstream release tags, independently of Dakota. Upstream components retain their own licenses.

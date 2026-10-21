@@ -24,5 +24,5 @@ Actual transfer savings need measuring across two builds with a small update.
 Runtime validation still needs a chunked image boot and upgrade in a VM, plus
 CI disk usage and packaging time measurements.
 
-References: [Chunkah usage](https://github.com/coreos/chunkah/blob/v0.6.0/README.md)
-and [fallback component detection](https://github.com/coreos/chunkah/blob/v0.6.0/src/components/bigfiles.rs).
+References: [Chunkah usage](https://github.com/coreos/chunkah/blob/main/README.md)
+and [fallback component detection](https://github.com/coreos/chunkah/blob/main/src/components/bigfiles.rs).
