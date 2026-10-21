@@ -122,6 +122,8 @@ Flatpak Builder has native `patch`, `strip`, `eu-strip` and `eu-elfcompress` ava
 
 The image temporarily distrusts the `emSign ECC Root CA - G3` and `Comodo AAA Services root` certificates after the eMudhra intermediate key compromise. Their certificates are in p11-kit's `/etc/pki/ca-trust/source/blocklist`, which the system's OpenSSL, GnuTLS and NSS trust stores all read. The `/etc` source takes precedence over the distribution bundle, so every extracted bundle rejects them. Python's bundled certifi list is replaced with a link to the system list. Remove both once freedesktop-sdk's `ca-certificates` drops these roots and its certifi is 2026.10.19 or newer.
 
+`update-ca-trust.service` rebuilds the extracted CA bundles early in every boot. bootc keeps locally changed `/etc` files across upgrades, and adding a local CA with `update-ca-trust` changes those bundles, so without this refresh such systems would keep their old bundles and miss certificate changes from image updates. Local sources in `/etc/pki/ca-trust/source` are preserved.
+
 Tailscale starts without enrollment. Run `sudo tailscale up` after installing. Its machine state belongs in writable `/var`, never in the image definition.
 
 Libvirt uses socket activation and Dakota's dedicated QEMU account settings. The image includes UEFI guest firmware. No VM GUI frontend is preinstalled.

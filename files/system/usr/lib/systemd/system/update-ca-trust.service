@@ -1,0 +1,18 @@
+[Unit]
+Description=Rebuild the system CA trust bundles
+Documentation=man:update-ca-trust(8)
+# bootc keeps locally changed /etc files across upgrades, including bundles
+# rebuilt after adding a local CA. Rebuild them from the booted image's
+# certificates and local sources so certificate changes in updates apply.
+DefaultDependencies=no
+After=local-fs.target
+Before=sysinit.target network-pre.target shutdown.target
+Conflicts=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/update-ca-trust extract
+RemainAfterExit=yes
+
+[Install]
+WantedBy=sysinit.target
