@@ -11,6 +11,15 @@
   ],
   "automerge": false,
   "prHourlyLimit": 10,
+  "customDatasources": {
+    "dakota-build": {
+      "description": "Offer Dakota's newest testing push only once its CI build succeeded, so its artifacts are in the Bluefin cache. Dakota skips the build for a push when a newer one is queued, so only the newest push run is trusted.",
+      "defaultRegistryUrlTemplate": "https://api.github.com/repos/{{packageName}}/actions/workflows/build.yml/runs?branch={{currentValue}}&event=push&per_page=1",
+      "transformTemplates": [
+        "workflow_runs[0].conclusion = \"success\" ? {\"sourceUrl\": \"https://github.com/{{packageName}}\", \"releases\": [{\"version\": \"{{currentValue}}\", \"digest\": workflow_runs[0].head_sha, \"releaseTimestamp\": workflow_runs[0].updated_at}]} : {\"releases\": []}"
+      ]
+    }
+  },
   "customManagers": [
     {
       "customType": "regex",
@@ -29,10 +38,10 @@
     },
     {
       "customType": "regex",
-      "managerFilePatterns": ["/^elements/.*\\.bst$/"],
-      "matchStrings": ["# renovate: datasource=git-refs depName=(?<depName>\\S+) packageName=(?<packageName>\\S+)\\n  track: (?<currentValue>[^\\n]+)\\n  ref: (?:[^\\n]*-g)?(?<currentDigest>[a-f0-9]{40})"],
-      "datasourceTemplate": "git-refs",
-      "autoReplaceStringTemplate": "# renovate: datasource=git-refs depName={{{depName}}} packageName={{{packageName}}}\n  track: {{{currentValue}}}\n  ref: {{{newDigest}}}"
+      "managerFilePatterns": ["/^elements/dakota\\.bst$/"],
+      "matchStrings": ["# renovate: datasource=custom\\.dakota-build depName=(?<depName>\\S+)\\n  track: (?<currentValue>[^\\n]+)\\n  ref: (?<currentDigest>[a-f0-9]{40})"],
+      "datasourceTemplate": "custom.dakota-build",
+      "versioningTemplate": "exact"
     },
     {
       "customType": "regex",
@@ -74,6 +83,11 @@
       "prBodyNotes": [
         "Updates the signed kernel, matching modules and Secure Boot files imported from Dakota's image. Other Dakota recipes are pinned separately."
       ]
+    },
+    {
+      "matchDatasources": ["custom.dakota-build"],
+      "matchUpdateTypes": ["digest"],
+      "changelogUrl": "{{sourceUrl}}/compare/{{currentDigest}}..{{newDigest}}"
     },
     {
       "matchManagers": ["github-actions"],

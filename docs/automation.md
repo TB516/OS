@@ -30,7 +30,7 @@ Keep the full version and `-dind` suffix. Renovate updates the tag and digest to
 
 The shared BuildStream plugin junctions have their own release tags and commit pins, managed directly by Renovate. They no longer follow GNOME's plugin recipes. The Docker source carries a small compatibility patch shared with other OCI imports, covering HTTP content types, Zstd layers and `sha256:` refs. Review that patch when updating the plugin release.
 
-GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
+The Dakota recipe pin follows Dakota's `testing` branch, but only to commits whose Dakota CI build succeeded, so their artifacts are already in the Bluefin cache. A Renovate custom datasource reads the newest `build.yml` push run on `testing` and offers its commit only if that run succeeded. Dakota skips the build for a push when a newer push is already queued, so older successful runs are not trusted. While the newest build is still running or has failed, Renovate reports a lookup warning and leaves the pin alone. GNOME and freedesktop-sdk move with Dakota. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
 
 The kernel image in `elements/core/dakota-boot.bst` independently follows Dakota's `testing` channel with an exact amd64 manifest digest. Kernel, modules, signed EFI binaries and signing certificate come from the same image; the Dakota recipe pin does not have to match its source revision.
 

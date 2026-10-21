@@ -3,7 +3,7 @@ kind: junction
 sources:
 - kind: git_repo
   url: github:projectbluefin/dakota.git
-  # renovate: datasource=git-refs depName=projectbluefin/dakota packageName=https://github.com/projectbluefin/dakota.git
+  # renovate: datasource=custom.dakota-build depName=projectbluefin/dakota
   track: testing
   ref: bb14777d9806c3924f5815712b92eb8c8125f95a
 - kind: patch
