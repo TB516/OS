@@ -32,3 +32,8 @@ public:
     - ln -sT var/srv /srv
     - ln -sT ../var/usrlocal /usr/local
     - truncate -s 0 /etc/machine-id
+    # Temporary: certifi bundles its own CA list, which still trusts the
+    # compromised eMudhra root. Use the system list, which honors the p11-kit
+    # blocklist. Drop with the blocklist once the junction ships certifi
+    # 2026.10.19 or newer.
+    - ln -sf /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /usr/lib/python3*/site-packages/certifi/cacert.pem
