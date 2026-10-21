@@ -2,10 +2,10 @@ kind: manual
 description: Keep elfutils tools available to Flatpak Builder
 
 depends:
-- gnome.bst:freedesktop-sdk.bst:components/elfutils.bst
+- dakota.bst:freedesktop-sdk.bst:components/elfutils.bst
 
 build-depends:
-- gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- dakota.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 variables:
   strip-binaries: ''

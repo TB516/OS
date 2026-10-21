@@ -6,10 +6,10 @@ build-depends:
 
 # A filter does not inherit the parent artifact's runtime dependencies.
 runtime-depends:
-- gnome.bst:sdk/gtk.bst
-- gnome.bst:sdk/libadwaita.bst
+- dakota.bst:gnome-build-meta.bst:sdk/gtk.bst
+- dakota.bst:gnome-build-meta.bst:sdk/libadwaita.bst
 - dakota.bst:bluefin/gtk4-layer-shell.bst
-- gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
+- dakota.bst:freedesktop-sdk.bst:public-stacks/runtime-minimal.bst
 
 config:
   include-orphans: true

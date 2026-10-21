@@ -2,11 +2,11 @@ kind: script
 description: Single-layer bootc OCI image for VM bring-up
 
 build-depends:
-- gnome.bst:freedesktop-sdk.bst:components/fakecap.bst
-- gnome.bst:freedesktop-sdk.bst:components/oci-builder.bst
-- gnome.bst:freedesktop-sdk.bst:components/glib.bst
-- gnome.bst:core-deps/dconf.bst
-- gnome.bst:freedesktop-sdk.bst:vm/prepare-image.bst
+- dakota.bst:freedesktop-sdk.bst:components/fakecap.bst
+- dakota.bst:freedesktop-sdk.bst:components/oci-builder.bst
+- dakota.bst:freedesktop-sdk.bst:components/glib.bst
+- dakota.bst:gnome-build-meta.bst:core-deps/dconf.bst
+- dakota.bst:freedesktop-sdk.bst:vm/prepare-image.bst
 - oci/init-scripts.bst
 - filename: oci/filesystem.bst
   config:

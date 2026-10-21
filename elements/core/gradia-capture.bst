@@ -4,10 +4,10 @@ description: Gradia Capture with GNOME 51 enabled in its metadata
 build-depends:
 - dakota.bst:bluefin/shell-extensions/gradia-capture.bst
 - dakota.bst:core/sandbox-tools.bst
-- gnome.bst:freedesktop-sdk.bst:components/jq.bst
+- dakota.bst:freedesktop-sdk.bst:components/jq.bst
 
 runtime-depends:
-- gnome.bst:core/gnome-shell.bst
+- dakota.bst:gnome-build-meta.bst:core/gnome-shell.bst
 
 variables:
   strip-binaries: ""

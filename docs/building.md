@@ -14,7 +14,7 @@ bst --config buildstream.conf show oci/image.bst
 
 BuildStream 2.6 or later is required. Validation uses 2.8 in the pinned builder container. Native installations also need the `buildstream-plugins` Python package for the Git source used to fetch the plugin junctions, plus source-plugin tools such as `git` and `patch`.
 
-The OS uses the baseline x86_64 target. x86-64-v3 is disabled in both the GNOME and Dakota junctions to match their normal upstream builds and improve artifact-cache reuse. GNOME passes this option through to freedesktop-sdk.
+The OS uses the baseline x86_64 target. x86-64-v3 is disabled in the Dakota junction to match Dakota's normal builds and improve artifact-cache reuse. Dakota passes this option through to GNOME and freedesktop-sdk.
 
 Artifact reuse still requires matching source revisions, recipes and build dependencies. Local image configuration and components whose inputs differ from upstream need rebuilding. BuildStream retains completed artifacts for later runs.
 
@@ -70,13 +70,13 @@ See [design history](plan.md) for the composition decisions and remaining milest
 
 | Input | Pinned revision |
 | --- | --- |
-| GNOME `gnome-51` | `1808f094d469291bdd85cc92a1a08f07aac6f6a6` |
-| freedesktop-sdk | `b02b59ffe19a49a402f357fd5fcb1d552ebc50d7`, tag `freedesktop-sdk-26.08.1` |
-| Dakota `testing` | `e59afbe788e441fc1fad560c01fa4dbc267d60d8` |
+| Dakota `testing` | `bb14777d9806c3924f5815712b92eb8c8125f95a` |
+| GNOME `gnome-51`, through Dakota | `24bd9e3394437b85fc204bf58ecd3d867d815f66` (51.1) |
+| freedesktop-sdk, through Dakota | `32c5fea70e827885fc805d38a9dc5716c39ed173`, tag `freedesktop-sdk-26.08.2` |
 
-GNOME owns the nested freedesktop-sdk junction, its patch queue, and its component overrides. Both of Dakota's base junctions redirect into that graph. Dakota and GNOME also share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
+`elements/dakota.bst` is the only base pin. Dakota owns the GNOME and freedesktop-sdk junctions, including their patch queues and overrides, so our artifacts match the ones Dakota's CI pushes to the Bluefin cache. Local elements refer to them as `dakota.bst:gnome-build-meta.bst:…` and `dakota.bst:freedesktop-sdk.bst:…`. Our junction settings override the GNOME apps list, os-release and boot modules inside Dakota's GNOME junction. Dakota and GNOME share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
 
-Do not run broad source tracking during bring-up. Review GNOME, freedesktop-sdk and Dakota together when updating these pins. Normal builds use the committed refs, not the tips of the tracking branches.
+The graph therefore includes Dakota's GNOME-level choices: its Plymouth theme, bootc, Mesa and ffmpeg builds, initramfs modules and dnsmasq fix. Review those when updating the Dakota pin. Normal builds use the committed refs, not the tips of the tracking branches.
 
 Local stacks own the session, native application selection, boot configuration and image assembly. Files and Disks are native applications in the OS. The runtime omits GNOME Software, native Papers and Sushi, Tour, GNOME user documentation, and Dakota's aggregate configuration. Sushi is installed as a Flatpak for file previews; PDF thumbnails are not included.
 
@@ -84,7 +84,7 @@ Settings, initial setup and the SDK platform use their upstream recipes. Parenta
 
 Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the kernel and modules, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
-The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The GNOME junction selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
+The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The Dakota junction's GNOME override selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
 
 The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. The source is the production `testing` image at Dakota revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`; the selected amd64 digest is `sha256:4697e6606ae5c23b58e24c2001654af60a614d977d23d37cc9358baa17d103a7`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
 
@@ -118,9 +118,9 @@ Docker starts as a system service. Use `sudo docker` initially. Adding an accoun
 
 Flatpak Builder has native `patch`, `strip`, `eu-strip` and `eu-elfcompress` available. Local recipes keep the binutils and elfutils binaries in the image because freedesktop-sdk classifies them as development files, which image composition excludes.
 
-The GNOME junction carries a small patch adding iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
+`patches/dakota/firewalld-iptables.patch` adds a patch to Dakota's GNOME patch queue that adds iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
 
-The junction also carries Dakota's exact GNOME Shell extension extraction patch. The image provides `bsdunzip`, which rejects Shell's combined `-u` and `-o` flags; the patch drops `-u` so installations through Extension Manager can extract successfully. Dakota's GNOME junction redirects here, so updating Dakota alone does not apply its patch. Keeping the patch identical preserves matching Shell and bundled-extension artifact keys with Dakota when the other build inputs match. Remove it when upstream fixes extraction or supplies a compatible unzip implementation.
+The image temporarily distrusts the `emSign ECC Root CA - G3` and `Comodo AAA Services root` certificates after the eMudhra intermediate key compromise. Their certificates are in p11-kit's `/etc/pki/ca-trust/source/blocklist`, which the system's OpenSSL, GnuTLS and NSS trust stores all read. The `/etc` source takes precedence over the distribution bundle, so every extracted bundle rejects them. Python's bundled certifi list is replaced with a link to the system list. Remove both once freedesktop-sdk's `ca-certificates` drops these roots and its certifi is 2026.10.19 or newer.
 
 Tailscale starts without enrollment. Run `sudo tailscale up` after installing. Its machine state belongs in writable `/var`, never in the image definition.
 
@@ -160,9 +160,9 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 
 ## Upstream references
 
-- [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/1808f094d469291bdd85cc92a1a08f07aac6f6a6)
-- [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/e59afbe788e441fc1fad560c01fa4dbc267d60d8)
+- [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/24bd9e3394437b85fc204bf58ecd3d867d815f66)
+- [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/bb14777d9806c3924f5815712b92eb8c8125f95a)
 - [Official Docker image recipe](https://github.com/docker-library/docker/tree/master/29)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 
-The image assembly follows the GNOME and Dakota recipes at those revisions. The shared plugin junctions follow upstream release tags, independently of GNOME and Dakota. Upstream components retain their own licenses.
+The image assembly follows the Dakota recipes, and the GNOME recipes Dakota selects, at those revisions. The shared plugin junctions follow upstream release tags, independently of Dakota. Upstream components retain their own licenses.
