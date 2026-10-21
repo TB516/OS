@@ -1,0 +1,20 @@
+{
+    "default": [
+        {
+            "type": "insecureAcceptAnything"
+        }
+    ],
+    "transports": {
+        "docker": {
+            "ghcr.io/tb516/os": [
+                {
+                    "type": "sigstoreSigned",
+                    "keyPath": "/etc/pki/containers/personal-os.pub",
+                    "signedIdentity": {
+                        "type": "matchRepository"
+                    }
+                }
+            ]
+        }
+    }
+}

@@ -16,6 +16,24 @@ Create a fine-grained GitHub token restricted to `TB516/OS`, with read/write acc
 
 Renovate is free and runs through its official Action. The updater needs no BuildStream container or Docker socket. After first publication, check GHCR package visibility before using the image for public installs. The installer must explicitly configure the image as its update origin.
 
+## Image signing
+
+Installed systems only accept updates from `ghcr.io/tb516/os` that carry a valid signature from this project's key. Other images, such as Bluefin or Dakota, are unaffected and can still be rebased to.
+
+The build workflow publishes with `redhat-actions/push-to-registry`, which has Podman sign the image during the push using the `COSIGN_PRIVATE_KEY` Actions secret. Podman stores the signature next to the image in GHCR as a `sha256-<digest>.sig` tag. A cosign step then checks that signature against the public key shipped in the image, so a secret that doesn't match fails the build. The key has no password, because the password would sit in the same secrets store.
+
+`/etc/containers/policy.json` requires that signature for this repository, using the public key at `/etc/pki/containers/personal-os.pub`. `/etc/containers/registries.d/personal-os.yaml` tells bootc and Podman where the signatures are stored. bootc checks the signature with the key from the currently running image before accepting an update, and refuses unsigned images or images signed with another key.
+
+If signing fails, the build fails. Any tag published without a valid signature is rejected by installed systems, which keep their current image until a later build signs successfully. In an emergency, a system can accept unsigned updates again by removing the `ghcr.io/tb516/os` entry from its local `/etc/containers/policy.json`.
+
+To replace the key:
+
+1. Add the new public key next to `personal-os.pub` in `files/system/etc/pki/containers`, change the policy's `keyPath` to a `keyPaths` list with both files, and publish. This image is still signed with the old key, and installed systems that boot it trust either key.
+2. Replace the `COSIGN_PRIVATE_KEY` secret with the new private key, point the build workflow's verification step at the new public key, and publish.
+3. In a later image, remove the old key file and its `keyPaths` entry. A listed key file that is missing makes verification fail.
+
+A system that skipped the step 1 image only trusts the old key. Move it to that image's version tag and reboot, for example `sudo bootc switch --apply ghcr.io/tb516/os:20261022.1`. Once it runs that image, `sudo bootc switch ghcr.io/tb516/os:latest` works again.
+
 ## Adding dependencies
 
 Docker's Engine, CLI, Compose and Buildx update together through the official Docker image. Its BuildStream source uses this annotation:
