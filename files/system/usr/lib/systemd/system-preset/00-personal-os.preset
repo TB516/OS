@@ -10,6 +10,8 @@ enable bootc-fetch-apply-updates.timer
 enable dakota-secure-boot-update.service
 enable systemd-resolved.service
 enable global-preset-all.service
+# Apply image certificate changes on systems with local CA changes.
+enable update-ca-trust.service
 
 enable flatpak-preinstall.service
 # Socket activation starts libvirt when a VM client needs it.

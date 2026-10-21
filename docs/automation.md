@@ -4,7 +4,7 @@
 
 The version uses the UTC date when the build starts. `N` is one more than the largest matching version tag already published to GHCR, so the first published image on September 21, 2026 is `20260921.1`. Failed and cancelled builds do not reserve a number. A rerun only advances the counter if its previous attempt published the version tag. CI writes this version into the image before BuildStream starts. It appears in `os-release`, the OCI metadata and the boot image selector as, for example, `Personal OS 20260921.1`.
 
-The build uses standard GitHub-hosted Ubuntu runners and upstream BuildStream caches, without preserving local artifacts between runs. Full builds have already completed successfully on those runners.
+The build uses standard GitHub-hosted Ubuntu runners and upstream BuildStream caches, without preserving local artifacts between runs.
 
 Publication uses Red Hat's `push-to-registry` Action. It reuses the image already imported into Podman for bootc validation, then publishes the version, commit and `latest` tags. The workflow's `IMAGE_NAME` is `tb516/os`; keep it aligned with `include/image.yml` if the repository moves. Renovate tracks the publishing Action's pinned revision.
 
@@ -22,15 +22,15 @@ Docker's Engine, CLI, Compose and Buildx update together through the official Do
 
 ```yaml
   # renovate: datasource=docker depName=docker.io/library/docker
-  track: 29.9.1-dind
-  ref: sha256:d18cae6d97a9ebf10a017859d3cdf728de0f2efc465364ba0bab6e2c9a87ccdc
+  track: <version>-dind
+  ref: sha256:<linux/amd64 manifest digest>
 ```
 
 Keep the full version and `-dind` suffix. Renovate updates the tag and digest together and preserves the architecture of the existing Linux amd64 manifest pin. BuildStream's Docker source expects a platform manifest rather than a multi-platform index.
 
 The shared BuildStream plugin junctions have their own release tags and commit pins, managed directly by Renovate. They no longer follow GNOME's plugin recipes. The Docker source carries a small compatibility patch shared with other OCI imports, covering HTTP content types, Zstd layers and `sha256:` refs. Review that patch when updating the plugin release.
 
-GNOME and Dakota track their existing Git branches. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
+The Dakota recipe pin follows Dakota's `testing` branch, but only to commits whose Dakota CI build succeeded, so their artifacts are already in the Bluefin cache. A Renovate custom datasource reads the newest `build.yml` push run on `testing` and offers its commit only if that run succeeded. Dakota skips the build for a push when a newer push is already queued, so older successful runs are not trusted. While the newest build is still running or has failed, Renovate reports a lookup warning and leaves the pin alone. GNOME and freedesktop-sdk move with Dakota. Container images and Actions are also tracked; nested component versions remain owned by their upstream junctions. Dependency updates need no checksum or recipe synchronization script.
 
 The kernel image in `elements/core/dakota-boot.bst` independently follows Dakota's `testing` channel with an exact amd64 manifest digest. Kernel, modules, signed EFI binaries and signing certificate come from the same image; the Dakota recipe pin does not have to match its source revision.
 
@@ -42,4 +42,4 @@ Kernel updates show image build timestamps, Dakota source revisions, kernel sour
 
 The report uses the workflow's existing `RENOVATE_TOKEN`. It includes the PR revision and skips publishing if that revision changed during generation. Existing comments are updated only when their content changes. A temporary fetch failure preserves an existing successful report for the same PR revision.
 
-Review GNOME/Dakota compatibility and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.
+Review Dakota updates and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.

@@ -2,5 +2,5 @@ kind: stack
 description: Native desktop applications included in the OS
 
 depends:
-- gnome.bst:core/gnome-disk-utility.bst
-- gnome.bst:core/nautilus.bst
+- dakota.bst:gnome-build-meta.bst:core/gnome-disk-utility.bst
+- dakota.bst:gnome-build-meta.bst:core/nautilus.bst

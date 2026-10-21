@@ -11,12 +11,12 @@ sources:
   os: linux
 
 build-depends:
-- gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
-- gnome.bst:freedesktop-sdk.bst:components/findutils.bst
-- gnome.bst:freedesktop-sdk.bst:components/grep.bst
-- gnome.bst:freedesktop-sdk.bst:components/openssl.bst
-- gnome.bst:freedesktop-sdk.bst:components/sbsigntools-maybe.bst
-- gnome.bst:freedesktop-sdk.bst:components/kmod.bst
+- dakota.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- dakota.bst:freedesktop-sdk.bst:components/findutils.bst
+- dakota.bst:freedesktop-sdk.bst:components/grep.bst
+- dakota.bst:freedesktop-sdk.bst:components/openssl.bst
+- dakota.bst:freedesktop-sdk.bst:components/sbsigntools-maybe.bst
+- dakota.bst:freedesktop-sdk.bst:components/kmod.bst
 
 variables:
   # Any post-signing stripping would invalidate the imported signatures.

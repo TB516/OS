@@ -5,14 +5,14 @@ depends:
 - core/config.bst
 - core/secure-boot.bst
 - core/os-release.bst
-- gnome.bst:gnomeos/initramfs/signed-modules.bst
-- gnome.bst:oci/initramfs/image.bst
-- gnome.bst:gnomeos-deps/bootc.bst
-- gnome.bst:oci/integration/bootc-config.bst
-- gnome.bst:oci/integration/lvm2-enable-activation.bst
-- gnome.bst:freedesktop-sdk.bst:components/btrfs-progs.bst
-- gnome.bst:freedesktop-sdk.bst:vm/config/useradd-default.bst
-- gnome.bst:freedesktop-sdk.bst:vm/config/sudo.bst
+- dakota.bst:gnome-build-meta.bst:gnomeos/initramfs/signed-modules.bst
+- dakota.bst:gnome-build-meta.bst:oci/initramfs/image.bst
+- dakota.bst:gnome-build-meta.bst:gnomeos-deps/bootc.bst
+- dakota.bst:gnome-build-meta.bst:oci/integration/bootc-config.bst
+- dakota.bst:gnome-build-meta.bst:oci/integration/lvm2-enable-activation.bst
+- dakota.bst:freedesktop-sdk.bst:components/btrfs-progs.bst
+- dakota.bst:freedesktop-sdk.bst:vm/config/useradd-default.bst
+- dakota.bst:freedesktop-sdk.bst:vm/config/sudo.bst
 
 public:
   bst:
@@ -32,3 +32,8 @@ public:
     - ln -sT var/srv /srv
     - ln -sT ../var/usrlocal /usr/local
     - truncate -s 0 /etc/machine-id
+    # Temporary: certifi bundles its own CA list, which still trusts the
+    # compromised eMudhra root. Use the system list, which honors the p11-kit
+    # blocklist. Drop with the blocklist once the junction ships certifi
+    # 2026.10.19 or newer.
+    - ln -sf /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem /usr/lib/python3*/site-packages/certifi/cacert.pem

@@ -2,10 +2,10 @@ kind: manual
 description: Keep GNU strip available to Flatpak Builder
 
 depends:
-- gnome.bst:freedesktop-sdk.bst:components/binutils.bst
+- dakota.bst:freedesktop-sdk.bst:components/binutils.bst
 
 build-depends:
-- gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- dakota.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 variables:
   strip-binaries: ''

@@ -6,11 +6,11 @@ Personal OS uses Dakota's signed boot chain. The full image build and disposable
 
 `core/dakota-boot.bst` imports the signed kernel, matching modules, signed systemd-boot/fwupd EFI loaders, Fedora's Microsoft-signed shim/MokManager and Dakota's public certificate from one pinned production OCI image. It preserves signatures and builds our own initramfs. The import requires the signed payload and relevant kernel capabilities; it does not fall back to unsigned files.
 
-Dakota's merged source recipes provide the enrollment helper, its boot-time EFI maintenance service, explicit `lockdown=integrity`, and `kernel.kexec_load_disabled=1`. A local patch installs the helper as `/usr/libexec/personal-os-secure-boot`, updates the service to call it, and labels new firmware entries `Personal OS`. GNOME supplies `mokutil`. Local boot arguments request `intel_iommu=on` and `iommu.passthrough=0`; AMD IOMMU is enabled by the kernel by default. The imported kernel must include BPF LSM and lockdown in its default LSM list.
+Dakota's merged source recipes provide the enrollment helper, its boot-time EFI maintenance service, explicit `lockdown=integrity`, and `kernel.kexec_load_disabled=1`. A local patch installs the helper as `/usr/libexec/personal-os-secure-boot`, updates the service to call it, and labels new firmware entries `Personal OS`. freedesktop-sdk-extra supplies `mokutil`. Local boot arguments request `intel_iommu=on` and `iommu.passthrough=0`; AMD IOMMU is enabled by the kernel by default. The imported kernel must include BPF LSM and lockdown in its default LSM list.
 
 Signing stays upstream. Keep Dakota's `secure_boot_signing` build option false here: enabling it would request upstream signing elements and private-key inputs, which this project does not need.
 
-The image tracks `testing` for Renovate updates and pins its production image at revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`. Builds use the exact pinned digest. The import rejects unsigned payloads; review the payload before accepting an image update.
+Renovate follows Dakota's production `testing` image, and builds use the exact pinned digest. The import rejects unsigned payloads; review the payload before accepting an image update.
 
 ## Enrollment after build and boot validation
 
@@ -43,7 +43,7 @@ Lockdown prevents hibernation and loading modules signed by untrusted keys. Disa
 
 Dakota's `check` command is an upstream diagnostic, not Epic's acceptance test. Read its reported failures/waits; its exit code alone does not establish readiness.
 
-The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot and the signed kernel. Dakota's checker reports eight passes and two waits for key recognition. Firmware rejects a direct bootloader launch that bypasses shim, and the kernel rejects a module with its signature removed. The maintenance service restores stale/missing EFI files. See [validation results](validation.md) for the image digest and evidence.
+The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot and the signed kernel. Dakota's checker reports eight passes and two waits for key recognition. Firmware rejects a direct bootloader launch that bypasses shim, and the kernel rejects a module with its signature removed. The maintenance service restores stale/missing EFI files. See [validation notes](validation.md) for what has been tested.
 
 Remaining validation before upgrading the host:
 

@@ -1,0 +1,32 @@
+From: Personal OS maintainers
+Subject: [PATCH] Add firewalld's iptables fix to Dakota's GNOME patch queue
+
+Dakota owns our GNOME junction, so carry the fix as one more patch in its
+gnome-build-meta queue. The queued patch explains the change itself.
+
+diff --git a/patches/gnome-build-meta/personal-os-firewalld-iptables.patch b/patches/gnome-build-meta/personal-os-firewalld-iptables.patch
+new file mode 100644
+index 0000000..477ad12
+--- /dev/null
++++ b/patches/gnome-build-meta/personal-os-firewalld-iptables.patch
+@@ -0,0 +1,20 @@
++Upstream-Status: Pending
++Exit: Drop when gnome-build-meta adds iptables to firewalld itself.
++Subject: firewalld: discover iptables during configuration
++
++Docker uses firewalld's direct API even when firewalld uses nftables.
++Without iptables in the build sandbox, configure records /bin/false for
++its IPv4/IPv6 commands. Keep iptables available at build time and runtime.
++
++diff --git a/elements/gnomeos-deps/firewalld.bst b/elements/gnomeos-deps/firewalld.bst
++index 4018dfb6..674db542 100644
++--- a/elements/gnomeos-deps/firewalld.bst
+++++ b/elements/gnomeos-deps/firewalld.bst
++@@ -17,6 +17,7 @@ build-depends:
++ - freedesktop-sdk.bst:components/libxslt.bst
++ 
++ depends:
+++- freedesktop-sdk.bst:components/iptables.bst
++ - freedesktop-sdk.bst:components/python3-nftables.bst
++ - freedesktop-sdk.bst:components/python3.bst
++ 

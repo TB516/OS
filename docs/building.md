@@ -14,7 +14,7 @@ bst --config buildstream.conf show oci/image.bst
 
 BuildStream 2.6 or later is required. Validation uses 2.8 in the pinned builder container. Native installations also need the `buildstream-plugins` Python package for the Git source used to fetch the plugin junctions, plus source-plugin tools such as `git` and `patch`.
 
-The OS uses the baseline x86_64 target. x86-64-v3 is disabled in both the GNOME and Dakota junctions to match their normal upstream builds and improve artifact-cache reuse. GNOME passes this option through to freedesktop-sdk.
+The OS uses the baseline x86_64 target. x86-64-v3 is disabled in the Dakota junction to match Dakota's normal builds and improve artifact-cache reuse. Dakota passes this option through to GNOME and freedesktop-sdk.
 
 Artifact reuse still requires matching source revisions, recipes and build dependencies. Local image configuration and components whose inputs differ from upstream need rebuilding. BuildStream retains completed artifacts for later runs.
 
@@ -68,15 +68,9 @@ The GitHub build workflow publishes on pushes to `main`. See [automation](automa
 
 See [design history](plan.md) for the composition decisions and remaining milestones.
 
-| Input | Pinned revision |
-| --- | --- |
-| GNOME `gnome-51` | `1808f094d469291bdd85cc92a1a08f07aac6f6a6` |
-| freedesktop-sdk | `b02b59ffe19a49a402f357fd5fcb1d552ebc50d7`, tag `freedesktop-sdk-26.08.1` |
-| Dakota `testing` | `e59afbe788e441fc1fad560c01fa4dbc267d60d8` |
+`elements/dakota.bst` pins a commit on Dakota's `testing` branch and is the only base pin. Dakota owns the GNOME and freedesktop-sdk junctions, including their patch queues and overrides, so our artifacts match the ones Dakota's CI pushes to the Bluefin cache. Local elements refer to them as `dakota.bst:gnome-build-meta.bst:…` and `dakota.bst:freedesktop-sdk.bst:…`. Our junction settings override the GNOME apps list, os-release and boot modules inside Dakota's GNOME junction. Dakota and GNOME share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
 
-GNOME owns the nested freedesktop-sdk junction, its patch queue, and its component overrides. Both of Dakota's base junctions redirect into that graph. Dakota and GNOME also share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
-
-Do not run broad source tracking during bring-up. Review GNOME, freedesktop-sdk and Dakota together when updating these pins. Normal builds use the committed refs, not the tips of the tracking branches.
+The graph therefore includes Dakota's GNOME-level choices: its Plymouth theme, bootc, Mesa and ffmpeg builds, initramfs modules and dnsmasq fix. Review those when updating the Dakota pin. Normal builds use the committed refs, not the tips of the tracking branches.
 
 Local stacks own the session, native application selection, boot configuration and image assembly. Files and Disks are native applications in the OS. The runtime omits GNOME Software, native Papers and Sushi, Tour, GNOME user documentation, and Dakota's aggregate configuration. Sushi is installed as a Flatpak for file previews; PDF thumbnails are not included.
 
@@ -84,17 +78,15 @@ Settings, initial setup and the SDK platform use their upstream recipes. Parenta
 
 Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the kernel and modules, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
-The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The GNOME junction selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
+The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The Dakota junction's GNOME override selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
 
-The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. The source is the production `testing` image at Dakota revision `95ff6c060392d2c3b05c82d057b1e9e5adf59eb8`; the selected amd64 digest is `sha256:4697e6606ae5c23b58e24c2001654af60a614d977d23d37cc9358baa17d103a7`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
+The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
 
 The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-oci-zstd.patch` to accept zstd layers and manifests whose media type is supplied only by the HTTP header. It also accepts and writes the standard `sha256:` digest prefix so Renovate can manage the pin directly. Python 3.14 or later is required for zstd extraction; the pinned builder provides it. Remove this patch once the upstream plugin supports these formats and the prefixed digest syntax.
 
-The shared official-plugin junction selects release 2.8.0. Its upstream OCI media-type support replaces that portion of our original patch. As of October 18, 2026, upstream still lacks the HTTP Content-Type fallback, zstd layer acceptance and prefixed refs; no issue or PR covering those additions was found.
-
 The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot bring-up](secure-boot.md) for enrollment and the validation still needed before deployment.
 
-BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker:29.9.1-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
+BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker` `-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
 `mise-bootstrap.service` runs at user login and uses the official `https://mise.run` installer to install mise into `~/.local/bin/mise`. The installer selects the release and verifies its download. System accounts are excluded. An existing file at that path skips installation; failures retry every 15 minutes while the user manager is running. A successful installation is left alone on subsequent logins. Removing the binary makes it eligible for installation again; use `systemctl --user mask --now mise-bootstrap.service` to opt out first.
 
@@ -106,9 +98,9 @@ The image supplies Bash activation through `/etc/profile.d/mise.sh` and adds mis
 
 Alt+Tab switches between individual windows, while Super+Tab switches between applications, matching Dakota. Super+E opens the home folder in Files. Dash to Dock, AppIndicator tray icons and Custom Command Menu are installed from the pinned Dakota recipes and enabled by default. The menu sits at the top left and opens About, System Monitor, Settings, Home, Bazaar, Extension Manager and the terminal. Its entries live in the local dconf database because the extension loads its own bundled schemas. Dakota's menu recipe also installs distro dconf snippets, but this image's profile only reads the local database.
 
-Bazaar Companion is also installed and enabled by default. It adds App Details and Uninstall actions to Flatpak application menus, with App Details opening Bazaar. The image reuses Dakota's pinned extension and updates the uninstall dialog for GNOME 51's layout API, then adds 51 to its supported-version metadata. The menu actions still need testing in a running VM.
+Bazaar Companion is also installed and enabled by default. It adds App Details and Uninstall actions to Flatpak application menus, with App Details opening Bazaar. The image reuses Dakota's pinned extension and updates the uninstall dialog for GNOME 51's layout API, then adds 51 to its supported-version metadata.
 
-Gradia Capture is installed and enabled using Dakota's pinned build with GNOME 51 added to its metadata. It adds screenshot annotations; installing Gradia from Bazaar also enables its editor and OCR integration. Screenshot capture still needs testing in a running VM.
+Gradia Capture is installed and enabled using Dakota's pinned build with GNOME 51 added to its metadata. It adds screenshot annotations; installing Gradia from Bazaar also enables its editor and OCR integration.
 
 These defaults do not replace saved user settings after a rebase. If needed, enable the extensions in Extension Manager and reset the relevant shortcuts in Settings. The Home shortcut can also be restored with `gsettings reset org.gnome.settings-daemon.plugins.media-keys home`, and `gsettings reset org.gnome.shell enabled-extensions` replaces your saved enabled-extension list with this image's defaults. Saved menu customizations take precedence too.
 
@@ -118,9 +110,11 @@ Docker starts as a system service. Use `sudo docker` initially. Adding an accoun
 
 Flatpak Builder has native `patch`, `strip`, `eu-strip` and `eu-elfcompress` available. Local recipes keep the binutils and elfutils binaries in the image because freedesktop-sdk classifies them as development files, which image composition excludes.
 
-The GNOME junction carries a small patch adding iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
+`patches/dakota/firewalld-iptables.patch` adds a patch to Dakota's GNOME patch queue that adds iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
 
-The junction also carries Dakota's exact GNOME Shell extension extraction patch. The image provides `bsdunzip`, which rejects Shell's combined `-u` and `-o` flags; the patch drops `-u` so installations through Extension Manager can extract successfully. Dakota's GNOME junction redirects here, so updating Dakota alone does not apply its patch. Keeping the patch identical preserves matching Shell and bundled-extension artifact keys with Dakota when the other build inputs match. Remove it when upstream fixes extraction or supplies a compatible unzip implementation.
+The image temporarily distrusts the `emSign ECC Root CA - G3` and `Comodo AAA Services root` certificates after the eMudhra intermediate key compromise. Their certificates are in p11-kit's `/etc/pki/ca-trust/source/blocklist`, which the system's OpenSSL, GnuTLS and NSS trust stores all read. The `/etc` source takes precedence over the distribution bundle, so every extracted bundle rejects them. Python's bundled certifi list is replaced with a link to the system list. Remove both once freedesktop-sdk's `ca-certificates` drops these roots and its certifi is 2026.10.19 or newer.
+
+`update-ca-trust.service` rebuilds the extracted CA bundles early in every boot. bootc keeps locally changed `/etc` files across upgrades, and adding a local CA with `update-ca-trust` changes those bundles, so without this refresh such systems would keep their old bundles and miss certificate changes from image updates. Local sources in `/etc/pki/ca-trust/source` are preserved.
 
 Tailscale starts without enrollment. Run `sudo tailscale up` after installing. Its machine state belongs in writable `/var`, never in the image definition.
 
@@ -132,7 +126,7 @@ At each boot, `flatpak-preinstall.service` runs `flatpak preinstall --system --n
 
 Flatpak tracks preinstalled apps itself and respects manual uninstalls. Changes to the declarations take effect on the next run, including removal of previously managed apps that are no longer declared. There is no separate installation marker or shell installer. Each Flatpak declares its own runtime. Bazaar can manage subsequent Flatpak updates. To retry immediately, run `sudo systemctl restart flatpak-preinstall.service`.
 
-The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal, Logs and GNOME Firmware. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. GNOME Firmware talks to the host fwupd service. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions. Verify these apps and preview activation in the VM before considering this integration complete.
+The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal, Logs and GNOME Firmware. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. GNOME Firmware talks to the host fwupd service. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions.
 
 The current update path is manual:
 
@@ -160,9 +154,9 @@ A temporary installer VM has installed the image onto a virtual disk, which boot
 
 ## Upstream references
 
-- [GNOME build metadata at the selected revision](https://gitlab.gnome.org/GNOME/gnome-build-meta/-/tree/1808f094d469291bdd85cc92a1a08f07aac6f6a6)
-- [Dakota at the selected revision](https://github.com/projectbluefin/dakota/tree/e59afbe788e441fc1fad560c01fa4dbc267d60d8)
-- [Official Docker image recipe](https://github.com/docker-library/docker/tree/master/29)
+- [Dakota](https://github.com/projectbluefin/dakota)
+- [GNOME build metadata](https://gitlab.gnome.org/GNOME/gnome-build-meta)
+- [Official Docker image recipe](https://github.com/docker-library/docker)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 
-The image assembly follows the GNOME and Dakota recipes at those revisions. The shared plugin junctions follow upstream release tags, independently of GNOME and Dakota. Upstream components retain their own licenses.
+The image assembly follows the Dakota recipes, and the GNOME recipes Dakota selects, at the pinned revision. The shared plugin junctions follow upstream release tags, independently of Dakota. Upstream components retain their own licenses.

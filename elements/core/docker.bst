@@ -16,13 +16,13 @@ sources:
   directory: config
 
 build-depends:
-- gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- dakota.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 runtime-depends:
-- gnome.bst:freedesktop-sdk.bst:components/iptables.bst
-- gnome.bst:freedesktop-sdk.bst:components/kmod.bst
-- gnome.bst:freedesktop-sdk.bst:components/procps.bst
-- gnome.bst:freedesktop-sdk.bst:components/ca-certificates.bst
+- dakota.bst:freedesktop-sdk.bst:components/iptables.bst
+- dakota.bst:freedesktop-sdk.bst:components/kmod.bst
+- dakota.bst:freedesktop-sdk.bst:components/procps.bst
+- dakota.bst:freedesktop-sdk.bst:components/ca-certificates.bst
 
 variables:
   strip-binaries: ''

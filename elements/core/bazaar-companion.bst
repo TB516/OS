@@ -4,11 +4,11 @@ description: Bazaar Companion adapted for GNOME 51
 build-depends:
 - dakota.bst:bluefin/shell-extensions/bazaar-companion.bst
 - dakota.bst:core/sandbox-tools.bst
-- gnome.bst:freedesktop-sdk.bst:components/jq.bst
+- dakota.bst:freedesktop-sdk.bst:components/jq.bst
 
 runtime-depends:
-- gnome.bst:core/gnome-shell.bst
-- gnome.bst:core-deps/flatpak.bst
+- dakota.bst:gnome-build-meta.bst:core/gnome-shell.bst
+- dakota.bst:gnome-build-meta.bst:core-deps/flatpak.bst
 
 variables:
   strip-binaries: ""

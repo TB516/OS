@@ -6,8 +6,8 @@ depends:
 - dakota.bst:bluefin/secure-boot-tools.bst
 - dakota.bst:bluefin/lockdown-kargs.bst
 - dakota.bst:bluefin/kexec-disable.bst
-- gnome.bst:gnomeos-deps/mokutil.bst
+- dakota.bst:gnome-build-meta.bst:freedesktop-sdk-extra.bst:components/mokutil.bst
 # Used by Dakota's enrollment, TPM reseal and readiness commands.
-- gnome.bst:freedesktop-sdk.bst:components/openssl.bst
-- gnome.bst:freedesktop-sdk.bst:components/cryptsetup.bst
-- gnome.bst:freedesktop-sdk.bst:components/jq.bst
+- dakota.bst:freedesktop-sdk.bst:components/openssl.bst
+- dakota.bst:freedesktop-sdk.bst:components/cryptsetup.bst
+- dakota.bst:freedesktop-sdk.bst:components/jq.bst

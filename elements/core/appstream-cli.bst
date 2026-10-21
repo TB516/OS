@@ -2,10 +2,10 @@ kind: manual
 description: Keep appstreamcli in the runtime image
 
 depends:
-- gnome.bst:freedesktop-sdk.bst:components/appstream.bst
+- dakota.bst:freedesktop-sdk.bst:components/appstream.bst
 
 build-depends:
-- gnome.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+- dakota.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 variables:
   strip-binaries: ''
