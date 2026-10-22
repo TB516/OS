@@ -98,7 +98,14 @@ jobs:
           podman tag "localhost/$IMAGE_NAME:sha-$GITHUB_SHA" "localhost/$IMAGE_NAME:latest"
           podman tag "localhost/$IMAGE_NAME:sha-$GITHUB_SHA" "localhost/$IMAGE_NAME:$IMAGE_VERSION"
 
-      - name: Publish image
+      # Podman only writes sigstore signatures to registries configured to
+      # store them, and the push fails otherwise. Reuse the image's setting.
+      - name: Enable image signatures
+        run: install -Dm644 files/system/etc/containers/registries.d/personal-os.yaml ~/.config/containers/registries.d/personal-os.yaml
+
+      # Installed systems only accept updates signed with this key.
+      - name: Publish and sign image
+        id: push
         uses: redhat-actions/push-to-registry@94ade333c38ecc0e60e94785125d9a52ca423b37 # v3.0.0
         with:
           image: ${{ env.IMAGE_NAME }}
@@ -106,3 +113,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ github.token }}
+          sigstore-private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+      # Fail here if the secret doesn't match the public key in the image.
+      # Podman's signatures are not recorded in Sigstore's transparency log.
+      - name: Check signature against the shipped key
+        env:
+          IMAGE: ghcr.io/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
+        run: cosign verify --insecure-ignore-tlog=true --key files/system/etc/pki/containers/personal-os.pub "$IMAGE" > /dev/null

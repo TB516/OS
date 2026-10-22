@@ -1,0 +1,5 @@
+# Signatures for the OS image are stored next to it in GHCR. CI writes them
+# there, and installed systems read them from there.
+docker:
+  ghcr.io/tb516/os:
+    use-sigstore-attachments: true
