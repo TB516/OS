@@ -1,2 +1,5 @@
 [tools]
 just = 'latest'
+
+[settings]
+lockfile = true
