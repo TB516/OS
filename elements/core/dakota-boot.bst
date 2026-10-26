@@ -6,7 +6,7 @@ sources:
   url: ghcr:projectbluefin/dakota
   # renovate: datasource=docker depName=ghcr.io/projectbluefin/dakota
   track: testing
-  ref: sha256:e53cec226985350d4ce2cee751041ef474df901bab988a6f86f3aac9ea90adb6
+  ref: sha256:5a719bda9a682072e1d09c668f4aeb2eb0966a2a2ed8bf3ea8a3f28874b35922
   architecture: amd64
   os: linux
 
