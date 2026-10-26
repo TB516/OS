@@ -10,6 +10,8 @@ sources:
   path: patches/dakota/personal-os-secure-boot.patch
 - kind: patch
   path: patches/dakota/firewalld-iptables.patch
+- kind: patch
+  path: patches/dakota/initramfs-firmware.patch
 
 config:
   options:

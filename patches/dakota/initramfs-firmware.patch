@@ -1,0 +1,63 @@
+From: Personal OS maintainers
+Subject: [PATCH] Add built-in driver firmware to Dakota's GNOME initramfs
+
+Dakota owns our GNOME junction, so carry the fix as one more patch in its
+gnome-build-meta queue. The queued patch explains the change itself.
+
+diff --git a/patches/gnome-build-meta/personal-os-initramfs-firmware.patch b/patches/gnome-build-meta/personal-os-initramfs-firmware.patch
+new file mode 100644
+index 0000000..9269048
+--- /dev/null
++++ b/patches/gnome-build-meta/personal-os-initramfs-firmware.patch
+@@ -0,0 +1,51 @@
++Upstream-Status: Pending
++Exit: Drop when gnome-build-meta's initramfs ships firmware for built-in drivers.
++Subject: initramfs: include firmware requested by built-in drivers
++
++Built-in drivers request their firmware before the root filesystem is
++mounted, so it has to be in the initramfs. The lookup only tried `.xz`,
++while freedesktop-sdk ships firmware compressed with zstd or uncompressed,
++so every entry was skipped. Try the same extensions as copy-initramfs.py.
++
++Built-in cfg80211 also loads regulatory.db at boot and never retries, so
++Wi-Fi stayed on the restrictive world regulatory domain. Add
++wireless-regdb-bin to the initramfs so the lookup can find it.
++
++diff --git a/elements/oci/initramfs/deps.bst b/elements/oci/initramfs/deps.bst
++index 8646bc8..92d46b6 100644
++--- a/elements/oci/initramfs/deps.bst
+++++ b/elements/oci/initramfs/deps.bst
++@@ -14,6 +14,7 @@ depends:
++ - freedesktop-sdk.bst:components/tpm2-tools.bst
++ - freedesktop-sdk.bst:components/tzdata.bst
++ - freedesktop-sdk.bst:components/util-linux.bst
+++- freedesktop-sdk.bst:components/wireless-regdb-bin.bst
++ - freedesktop-sdk-extra.bst:components/zram-generator.bst
++ - gnomeos-deps/plymouth-gnome-theme.bst
++ - gnomeos-deps/udev-hide-usr.bst
++diff --git a/files/gnomeos/generate-initramfs/modules/50-kmod/module.sh b/files/gnomeos/generate-initramfs/modules/50-kmod/module.sh
++index 113e082..0c0720f 100644
++--- a/files/gnomeos/generate-initramfs/modules/50-kmod/module.sh
+++++ b/files/gnomeos/generate-initramfs/modules/50-kmod/module.sh
++@@ -80,13 +80,14 @@ install() {
++     while IFS= read -r -d '' line; do
++         case "${line}" in
++             *.firmware=*)
++-                firmware="${line##*.firmware=}"
++-                path="/usr/lib/firmware/${firmware}.xz"
++-                if [ -f "${path}" ]; then
++-                    install_file "${path}"
++-                else
++-                    echo "Ignoring missing ${path}"
++-                fi
+++                firmware="/usr/lib/firmware/${line##*.firmware=}"
+++                for path in "${firmware}" "${firmware}.xz" "${firmware}.zst"; do
+++                    if [ -f "${path}" ]; then
+++                        install_file "${path}"
+++                        continue 2
+++                    fi
+++                done
+++                echo "Ignoring missing ${firmware}"
++                 ;;
++         esac
++     done <"/usr/lib/modules/${kernelver}/modules.builtin.modinfo"
