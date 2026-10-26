@@ -5,7 +5,7 @@ sources:
   url: github:projectbluefin/dakota.git
   # renovate: datasource=custom.dakota-build depName=projectbluefin/dakota
   track: testing
-  ref: f1e147b5ce8b9ab60bc63a1aa91150a2781779a1
+  ref: 61281c1530c69dcf99ef93297393c41ffaae510b
 - kind: patch
   path: patches/dakota/personal-os-secure-boot.patch
 - kind: patch
