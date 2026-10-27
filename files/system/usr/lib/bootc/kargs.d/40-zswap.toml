@@ -1,0 +1,3 @@
+# Dakota's kernel turns zswap on by default. In front of zram it would
+# compress every swapped page twice, so leave swap to zram alone.
+kargs = ["zswap.enabled=0"]
