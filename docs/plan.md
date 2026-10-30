@@ -8,7 +8,7 @@ Build a GNOME desktop as an immutable bootc OCI image. The repository owns image
 
 The initial base is GNOME 51 and freedesktop-sdk 26.08, using baseline x86_64. Deployment targets composefs, systemd-boot and Btrfs with conventional local accounts.
 
-x86-64-v3 was tried during bring-up, then disabled because upstream GNOME and Dakota CI use the baseline target. Reusing upstream artifacts takes priority over CPU-specific compilation, especially for future hosted CI builds.
+x86-64-v3 was tried during bring-up, then disabled because upstream GNOME and Dakota CI used the baseline target. In October 2026, Dakota moved to x86-64-v3 and this project followed it for the same artifact-cache reuse reason. Reusing upstream artifacts takes priority over CPU-specific compilation, especially for future hosted CI builds.
 
 Dakota is pinned to commits on its `testing` branch whose CI build succeeded. Its rolling `next` branch follows GNOME's development branch and is not used.
 

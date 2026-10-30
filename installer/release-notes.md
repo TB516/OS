@@ -1,5 +1,7 @@
 Experimental x86_64 UEFI installer. Installation and upgrades must still be tested in a VM before treating this as a verified hardware installer. Secure Boot must be disabled.
 
+The installed OS requires an x86-64-v3 CPU, including all AMD Ryzen CPUs and Intel Haswell Core processors or newer. Some Pentium, Celeron and Atom models lack the required instructions. VMs must expose x86-64-v3 CPU features.
+
 Download every `personal-os.iso.part-*` file and both checksum files into an empty directory. GitHub limits individual downloads to less than 2 GiB, so join the parts before flashing:
 
 ```sh
