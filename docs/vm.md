@@ -19,7 +19,7 @@ Installation used a disposable helper VM so bootc could partition a virtual disk
 1. Extract the OCI image's uncompressed layer into a temporary root using `podman unshare tar`, preserving ownership and extended attributes. Obtain the layer filename from the OCI index and manifest.
 2. Copy its matching kernel and `usr/share/ovmf/OVMF_CODE.fd` and `OVMF_VARS.fd` into the VM directory. Preserve a writable copy of the firmware variables for subsequent boots.
 3. Add a temporary installer service to the extracted root, then populate a 24 GiB ext4 file with `podman unshare mkfs.ext4 -b 4096 -d ROOTFS installer.raw`.
-4. Create a separate 48 GiB sparse `os.raw`. Boot the helper's matching kernel with the ext4 image as `/dev/vda`, the target as `/dev/vdb`, and `build/image` shared read-only using QEMU's 9p transport.
+4. Create a separate 48 GiB sparse `os.raw`. Boot the helper's matching kernel with the ext4 image as `/dev/vda`, the target as `/dev/vdb`, and `build/image` shared read-only using QEMU's 9p transport. Use KVM with `-cpu host` on an x86-64-v3 host so the helper can run the OS userspace.
 5. Mount the share at `/run/image` and run the following **inside that helper VM**, where `/dev/vdb` is the disposable target disk:
 
 ```sh

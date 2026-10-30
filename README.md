@@ -2,6 +2,8 @@
 
 A GNOME 51 desktop built on freedesktop-sdk 26.08. The system image uses bootc, systemd-boot and Btrfs. Desktop applications come primarily from Flathub.
 
+An x86-64-v3 CPU is required, including all AMD Ryzen CPUs and Intel Haswell Core processors or newer. See the [CPU requirements](docs/building.md#requirements) for model exceptions and VM setup.
+
 The OS includes native Ghostty, Docker with Compose and Buildx, Podman, Distrobox, Tailscale, and QEMU/libvirt. Bazaar installs as a Flatpak after the first boot with an internet connection.
 
 For development tools, [mise](https://mise.jdx.dev/getting-started.html) installs in your user account automatically after login with an internet connection. Open a new terminal once installation finishes. It updates independently through `mise self-update`; `mise upgrade` updates the tools it manages.

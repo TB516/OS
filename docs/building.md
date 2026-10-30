@@ -14,7 +14,7 @@ bst --config buildstream.conf show oci/image.bst
 
 BuildStream 2.6 or later is required. Validation uses 2.8 in the pinned builder container. Native installations also need the `buildstream-plugins` Python package for the Git source used to fetch the plugin junctions, plus source-plugin tools such as `git` and `patch`.
 
-The OS uses the baseline x86_64 target. x86-64-v3 is disabled in the Dakota junction to match Dakota's normal builds and improve artifact-cache reuse. Dakota passes this option through to GNOME and freedesktop-sdk.
+The OS requires an x86-64-v3 CPU, matching Dakota's normal builds to improve artifact-cache reuse. The Dakota junction enables this option and passes it through to GNOME and freedesktop-sdk. Supported CPUs include Intel Haswell Core processors and newer, AMD Excavator and all Ryzen processors. Check the exact model for Pentium, Celeron and Atom CPUs; some newer models lack the required instructions. The build machine also needs x86-64-v3 support because cached tools run during builds. VMs must expose the required CPU features to the guest; the supplied VM runner uses the host CPU.
 
 Artifact reuse still requires matching source revisions, recipes and build dependencies. Local image configuration and components whose inputs differ from upstream need rebuilding. BuildStream retains completed artifacts for later runs.
 

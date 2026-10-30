@@ -5,7 +5,7 @@ sources:
   url: github:projectbluefin/dakota.git
   # renovate: datasource=custom.dakota-build depName=projectbluefin/dakota
   track: testing
-  ref: 6789ead82254c3168f54349f6626a54c2ec0b8df
+  ref: 7da528391018220a2af9ca7e9c492c43712f73a5
 - kind: patch
   path: patches/dakota/personal-os-secure-boot.patch
 - kind: patch
@@ -16,7 +16,7 @@ sources:
 config:
   options:
     arch: '%{arch}'
-    x86_64_v3: false
+    x86_64_v3: true
     gaming: false
     # Sign only upstream; consume the published signatures here.
     secure_boot_signing: false
