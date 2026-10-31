@@ -5,7 +5,6 @@ depends:
 - core/config.bst
 - core/secure-boot.bst
 - core/os-release.bst
-- dakota.bst:gnome-build-meta.bst:gnomeos/initramfs/signed-modules.bst
 - dakota.bst:gnome-build-meta.bst:oci/initramfs/image.bst
 - dakota.bst:gnome-build-meta.bst:gnomeos-deps/bootc.bst
 - dakota.bst:gnome-build-meta.bst:oci/integration/bootc-config.bst
