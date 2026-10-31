@@ -17,7 +17,7 @@ Changes are checked with a local build and, when they affect the running system,
 ## Known issues
 
 - Installation and later reads of some image objects have logged fs-verity `FILE CORRUPTED` diagnostics, although the data read back matches the image. The cause is unknown.
-- The initramfs warns about groups missing from its reduced account database, and tmpfiles warns about symlinked home paths and the read-only root. Neither leaves failed services.
+- The initramfs warns about groups missing from its reduced account database. These messages do not leave failed services.
 - GNOME Initial Setup's session can reach its shutdown timeout on the first reboot.
 
 ## Remaining checks
