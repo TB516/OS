@@ -28,4 +28,4 @@ Changes are checked with a local build and, when they affect the running system,
 - Test Tailscale enrollment, a full libvirt guest installation, browser credential storage and application data across an OS update.
 - Test Bazaar Companion's menu actions and Gradia Capture's screenshot annotations.
 - Test Flatpak retries after an offline first boot, preinstall changes across an OS update, and Sushi previews on removable drives and network mounts.
-- Measure Chunkah's layer reuse and CI cost, and boot and upgrade a chunked image.
+- Measure Chunkah's layer reuse and CI cost, and verify a fresh chunked-image installation and upgrade in a VM. CI-published chunked images already boot on the host.

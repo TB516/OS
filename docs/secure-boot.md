@@ -45,10 +45,10 @@ Dakota's `check` command is an upstream diagnostic, not Epic's acceptance test. 
 
 The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot and the signed kernel. Dakota's checker reports eight passes and two waits for key recognition. Firmware rejects a direct bootloader launch that bypasses shim, and the kernel rejects a module with its signature removed. The maintenance service restores stale/missing EFI files. See [validation notes](validation.md) for what has been tested.
 
-Remaining validation before upgrading the host:
+Remaining hardware and update validation:
 
 - Exercise an OS update and rollback while Secure Boot remains enabled. EFI refresh and the fwupd shim path have been checked; an actual firmware capsule update has not.
 - Validate firmware TPM/IOMMU state and enrollment on the target hardware, including TPM disk unlock if used.
 - When available, test EAC's host service with the intended game launcher and an actual protected game. Hardware/VM checks cannot establish Epic's acceptance.
 
-No NVIDIA-specific out-of-tree driver stack is added by this change. Any future out-of-tree modules need a signing key recognized by EAC as well.
+The image does not include an NVIDIA-specific out-of-tree driver stack. Any future out-of-tree modules need a signing key recognized by EAC as well.

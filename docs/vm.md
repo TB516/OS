@@ -30,9 +30,9 @@ bootc install to-disk /dev/vdb --wipe \
   --karg console=ttyS0,115200 --karg systemd.debug_shell=ttyS1
 ```
 
-After installation, shut down the helper and boot `os.raw` alone with `just vm`. The target disk has no dependency on the helper root or the OCI share. These preparation steps are not yet an automated installer.
+After installation, shut down the helper and boot `os.raw` alone with `just vm`. The target disk has no dependency on the helper root or the OCI share. These manual steps describe the original test setup; the separate [installer ISO workflow](installer-plan.md) still needs installation testing.
 
-The local origin is a placeholder. Testing upgrades requires publishing a reachable image and selecting it as the bootc origin. `--skip-fetch-check` was used for this unpublished local image.
+The local origin is a placeholder. Testing upgrades requires selecting a reachable published image, such as `ghcr.io/tb516/os:latest`, as the bootc origin. `--skip-fetch-check` was used for this unpublished local image.
 
 ## Test access and evidence
 

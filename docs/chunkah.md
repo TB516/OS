@@ -21,8 +21,9 @@ large-file detection supplies components, while smaller unclaimed files remain
 grouped together. We do not add Dakota's custom BuildStream component metadata.
 Actual transfer savings need measuring across two builds with a small update.
 
-Runtime validation still needs a chunked image boot and upgrade in a VM, plus
-CI disk usage and packaging time measurements.
+CI-published chunked images boot on the host. A controlled installation and
+upgrade test in a VM, plus CI disk usage and packaging time measurements,
+remain outstanding.
 
 References: [Chunkah usage](https://github.com/coreos/chunkah/blob/main/README.md)
 and [fallback component detection](https://github.com/coreos/chunkah/blob/main/src/components/bigfiles.rs).

@@ -1,5 +1,5 @@
 kind: stack
-description: GNOME desktop and host services for the first bootable image
+description: GNOME desktop and host services
 
 depends:
 - core/apps.bst

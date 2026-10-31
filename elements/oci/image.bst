@@ -1,5 +1,5 @@
 kind: script
-description: Single-layer bootc OCI image for VM bring-up
+description: Single-layer bootc OCI image
 
 build-depends:
 - dakota.bst:freedesktop-sdk.bst:components/fakecap.bst

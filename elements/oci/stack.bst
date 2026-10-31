@@ -22,7 +22,7 @@ public:
     - mkdir -p /boot /run /sysroot /var/home /var/opt /var/mnt /var/srv /var/usrlocal
     - install -d -m0700 /var/roothome
     - install -d -m1777 /var/tmp
-    # bootc 1.16.6 container lint still requires this symlink for composefs images.
+    # bootc lint requires this link with our inherited OSTree configuration.
     - ln -sT sysroot/ostree /ostree
     - ln -sT var/home /home
     - ln -sT var/roothome /root
