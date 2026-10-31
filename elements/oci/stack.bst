@@ -31,6 +31,10 @@ public:
     - ln -sT var/mnt /mnt
     - ln -sT var/srv /srv
     - ln -sT ../var/usrlocal /usr/local
+    # These rules expect directories at our symlinks and a writable root.
+    # 10-bootc.conf creates the /var targets; keep the other provisioning rules.
+    - rm /usr/lib/tmpfiles.d/home.conf /usr/lib/tmpfiles.d/root.conf
+    - sed -i '/^d- \/root /d' /usr/lib/tmpfiles.d/provision.conf
     - truncate -s 0 /etc/machine-id
     # Temporary: certifi bundles its own CA list, which still trusts the
     # compromised eMudhra roots that the system list has dropped. Use the
