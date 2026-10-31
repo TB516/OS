@@ -2,6 +2,8 @@
 
 Personal OS uses Dakota's signed boot chain. The full image build and disposable UEFI VM tests pass, including MokManager enrollment, enforced Secure Boot, unsigned-module rejection and EFI refresh. Hardware upgrade and EAC acceptance remain unvalidated.
 
+QEMU's bundled Secure Boot firmware has also booted the existing test disk to GNOME, completed Dakota's MokManager enrollment and booted with Secure Boot enabled and kernel integrity lockdown. Firmware rejected a direct systemd-boot launch that bypassed shim, then successfully booted through shim. This test used the existing Personal OS 51.0 disk with kernel 7.2.11, fresh QEMU firmware variables and Microsoft platform keys provisioned with `virt-fw-vars`. The earlier unsigned-module and EFI refresh tests used the separate freedesktop-sdk OVMF build. The firmware migration test does not establish a fresh installation or update of the latest image, TPM behavior or hardware acceptance.
+
 ## What the image supplies
 
 `core/dakota-boot.bst` imports the signed kernel, matching modules, signed systemd-boot/fwupd EFI loaders, Fedora's Microsoft-signed shim/MokManager and Dakota's public certificate from one pinned production OCI image. It preserves signatures and builds our own initramfs. The import requires the signed payload and relevant kernel capabilities; it does not fall back to unsigned files.

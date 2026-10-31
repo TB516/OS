@@ -120,7 +120,7 @@ Python's bundled certifi list is temporarily replaced with a link to the system 
 
 Tailscale starts without enrollment. Run `sudo tailscale up` after installing. Its machine state belongs in writable `/var`, never in the image definition.
 
-Libvirt uses socket activation and Dakota's dedicated QEMU account settings. The image includes UEFI guest firmware. No VM GUI frontend is preinstalled.
+Libvirt uses socket activation and Dakota's dedicated QEMU account settings. QEMU supplies UEFI guest firmware, including a Secure Boot variant, under `/usr/share/qemu` with metadata for libvirt's firmware discovery. The separate `/usr/share/ovmf` package is not included. Existing guests with explicit paths there need their firmware configuration reviewed before an upgrade; preserve their firmware variables when planning a migration. No VM GUI frontend is preinstalled.
 
 The image includes GNOME's fwupd recipe, as Dakota does. `fwupdmgr` checks and applies supported device firmware updates; GNOME Firmware provides the desktop interface as a Flatpak. UEFI capsule updates depend on the machine firmware and access to the installed EFI system partition, so test device detection and staging on physical hardware before relying on them.
 
