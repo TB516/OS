@@ -33,7 +33,7 @@ variables:
   go-arch: amd64
 ```
 
-Use a lowercase GHCR account and repository. The checked-in reference is `ghcr.io/tb516/os:latest`. The name, ID and version feed `os-release`; the reference becomes the OCI index annotation. Local builds keep the checked-in version. CI replaces it with a `YYYYMMDD.N` version based on the UTC date and that day's published version tags, then publishes the same value as an image tag. The eventual installer must also pass the intended reference as the installed system's tracking origin. An OCI annotation alone does not configure that origin.
+Use a lowercase GHCR account and repository. The checked-in reference is `ghcr.io/tb516/os:latest`. The name, ID and version feed `os-release`; the reference becomes the OCI index annotation. Local builds keep the checked-in version. CI replaces it with a `YYYYMMDD.N` version based on the UTC date and that day's published version tags, then publishes the same value as an image tag. The installer also sets this reference as the installed system's tracking origin in `installer/os/`. Keep those settings aligned when changing the image reference; an OCI annotation alone does not configure that origin.
 
 ## Commands
 
@@ -55,14 +55,14 @@ BuildStream stores sources and artifacts in the normal user cache. Both public c
 
 The GitHub build workflow uses the same upstream caches. It starts fresh on each run and does not save local artifacts to GitHub Actions caches. It limits compilation to one element at a time with four jobs and skips storing build trees to reduce runner resource use. Build output remains available in the workflow logs.
 
-After logging in to GHCR, publish an exported image with the same reference configured for that build:
+For test publication, log in to GHCR and use the same reference configured for that build:
 
 ```sh
 skopeo login ghcr.io
 just publish ghcr.io/YOUR_ACCOUNT/YOUR_IMAGE:latest
 ```
 
-The GitHub build workflow publishes on pushes to `main`. See [automation](automation.md) for dependency update PRs and repository setup. The commands above also support local publication.
+`just publish` pushes the exported image without signing or splitting it into reusable layers. Installed systems reject unsigned updates from `ghcr.io/tb516/os`, so do not use this command to replace its release tags. The GitHub build workflow publishes signed, layered images on pushes to `main`. See [automation](automation.md) for signing, dependency update PRs and repository setup.
 
 ## Dependency ownership
 
@@ -78,13 +78,13 @@ Settings, initial setup and the SDK platform use their upstream recipes. Parenta
 
 Dakota supplies Ghostty, xdg-terminal-exec, Tailscale, virtualization, the kernel and modules, and three small network/audio/disk integration fixes. Its gaming kernel, swap changes and Homebrew stack are not selected.
 
-The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The Dakota junction's GNOME override selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. GNOME's zram configuration stays in place. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
+The kernel is Dakota's regular freedesktop-sdk-derived kernel, imported from its published OCI image by `core/dakota-boot.bst`. The Dakota junction's GNOME override selects that import for both the OS and its initramfs. The import preserves module files without stripping them and discards Dakota's initramfs; GNOME builds a new initramfs from the imported modules and this OS's userspace. Local configuration sets zram to the smaller of RAM size and 8 GiB and disables zswap to avoid double compression. The same import supplies Dakota-signed systemd-boot and fwupd EFI loaders, Fedora shim/MokManager and Dakota's public certificate. Dakota's upstream enrollment tool and EFI maintenance service are selected separately; no local signing key is used.
 
 The OCI source follows Dakota's regular `testing` image and pins an amd64 manifest digest. Renovate updates that digest independently of the Dakota recipe pin in `elements/dakota.bst`. Fetching it downloads the whole Dakota image, but only the kernel/modules and signed boot payload enter the imported artifact. BuildStream caches the source and the small extracted artifact locally. No Dakota application defaults are imported, and no kernel compilation or private signing key is needed.
 
 The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-oci-zstd.patch` to accept zstd layers and manifests whose media type is supplied only by the HTTP header. It also accepts and writes the standard `sha256:` digest prefix so Renovate can manage the pin directly. Python 3.14 or later is required for zstd extraction; the pinned builder provides it. Remove this patch once the upstream plugin supports these formats and the prefixed digest syntax.
 
-The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot bring-up](secure-boot.md) for enrollment and the validation still needed before deployment.
+The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot bring-up](secure-boot.md) for enrollment and remaining hardware and update validation.
 
 BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker` `-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
@@ -120,7 +120,7 @@ Python's bundled certifi list is temporarily replaced with a link to the system 
 
 Tailscale starts without enrollment. Run `sudo tailscale up` after installing. Its machine state belongs in writable `/var`, never in the image definition.
 
-Libvirt uses socket activation and Dakota's dedicated QEMU account settings. The image includes UEFI guest firmware. No VM GUI frontend is preinstalled.
+Libvirt uses socket activation and Dakota's dedicated QEMU account settings. QEMU supplies UEFI guest firmware, including a Secure Boot variant, under `/usr/share/qemu` with metadata for libvirt's firmware discovery. The separate `/usr/share/ovmf` package is not included. Existing guests with explicit paths there need their firmware configuration reviewed before an upgrade; preserve their firmware variables when planning a migration. No VM GUI frontend is preinstalled.
 
 The image includes GNOME's fwupd recipe, as Dakota does. `fwupdmgr` checks and applies supported device firmware updates; GNOME Firmware provides the desktop interface as a Flatpak. UEFI capsule updates depend on the machine firmware and access to the installed EFI system partition, so test device detection and staging on physical hardware before relying on them.
 
@@ -130,17 +130,16 @@ Flatpak tracks preinstalled apps itself and respects manual uninstalls. Changes 
 
 The default Flatpaks are Bazaar, Mission Center, Sushi (`org.gnome.NautilusPreviewer`), Extension Manager, Refine, Flatseal, Logs and GNOME Firmware. Extension Manager manages GNOME Shell extensions; Refine exposes GNOME settings and experimental features; Flatseal reviews and changes Flatpak permissions; Logs reads the systemd journal. GNOME Firmware talks to the host fwupd service. Sushi exports the D-Bus service used by Files for spacebar previews. Its current Flathub build grants read access to the home directory; previews on removable drives or network mounts may need additional permissions.
 
-The current update path is manual:
+To inspect updates, stage one manually, or roll back:
 
 ```sh
 sudo bootc status
 sudo bootc upgrade
 # Reboot when ready to use the staged deployment.
 sudo bootc rollback
-flatpak update
 ```
 
-The definition enables background bootc updates with a service override that stages them for the next user-initiated reboot. GNOME sysupdate units remain disabled. It also disables homed's main, activation and first-boot services for conventional account creation. The first-boot service must be disabled explicitly because its `Also=` setting can re-enable homed when presets are applied. OS updates do not manage a user's mise executable or tools.
+The definition also enables background bootc staging for the next user-initiated reboot. See [automation](automation.md#setup) for the schedule. Flatpak updates are separate; use Bazaar or `flatpak update`. GNOME sysupdate units remain disabled. The image also disables homed's main, activation and first-boot services for conventional account creation. The first-boot service must be disabled explicitly because its `Also=` setting can re-enable homed when presets are applied. OS updates do not manage a user's mise executable or tools.
 
 ## Boot and installation
 
@@ -152,7 +151,7 @@ Image assembly also creates `/dev`, `/proc` and `/sys` explicitly. BuildStream's
 
 The install defaults select `bootloader = "systemd"` and Btrfs. Dakota's current default is XFS, which is why this small configuration is local. A bootc installation must explicitly select `--composefs-backend`; the inherited OSTree `prepare-root.conf` is not a substitute for that option.
 
-A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `just vm` opens that local test disk. See [VM notes](vm.md) for the installation method and [validation notes](validation.md) for results and remaining checks. An end-user installer, published update origin and update/rollback testing remain to be implemented.
+A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `just vm` opens that local test disk. See [VM notes](vm.md) for the installation method. The [installer workflow](installer-plan.md) now produces offline ISO releases configured to track the published GHCR image. The ISO installation path and an end-to-end update/rollback cycle still need testing; see [validation notes](validation.md).
 
 ## Upstream references
 

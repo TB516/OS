@@ -8,7 +8,7 @@ Build a GNOME desktop as an immutable bootc OCI image. The repository owns image
 
 The initial base is GNOME 51 and freedesktop-sdk 26.08, using baseline x86_64. Deployment targets composefs, systemd-boot and Btrfs with conventional local accounts.
 
-x86-64-v3 was tried during bring-up, then disabled because upstream GNOME and Dakota CI used the baseline target. In October 2026, Dakota moved to x86-64-v3 and this project followed it for the same artifact-cache reuse reason. Reusing upstream artifacts takes priority over CPU-specific compilation, especially for future hosted CI builds.
+x86-64-v3 was tried during bring-up, then disabled because upstream GNOME and Dakota CI used the baseline target. In October 2026, Dakota moved to x86-64-v3 and this project followed it for the same artifact-cache reuse reason. Reusing upstream artifacts takes priority over CPU-specific compilation, including in hosted CI builds.
 
 Dakota is pinned to commits on its `testing` branch whose CI build succeeded. Its rolling `next` branch follows GNOME's development branch and is not used.
 
@@ -32,13 +32,13 @@ Ghostty is image-managed and supplies the preferred terminal integration. Distro
 
 Tailscale and QEMU/libvirt belong in the image because they need host services. Selected Dakota elements also provide resolver integration, the composefs disk-visibility rule and the PC-speaker audio rule.
 
-The initial implementation keeps bootc install defaults local to select Btrfs. It uses Dakota's bootc and GNOME's zram defaults. Exact pins and recipe ownership are documented in the [build guide](building.md).
+The implementation keeps bootc install defaults local to select Btrfs. It uses Dakota's bootc, with local configuration for zram and disabled zswap. Exact pins and recipe ownership are documented in the [build guide](building.md).
 
 ## Deployment decisions
 
 OS updates should stage a complete bootc deployment without forcing a reboot. Direct bootc commands must remain usable, and an update-and-rollback cycle must be tested. Flatpak updates are independent of OS updates.
 
-Adapt Dakota's installer when the image is ready for installation. The installer must select this project's image and update origin, use the composefs backend with Btrfs and systemd-boot, and create conventional local accounts. Offline media must embed the matching OCI payload.
+Dakota's adapted installer selects this project's image and update origin, uses the composefs backend with Btrfs and systemd-boot, and leaves conventional account creation to GNOME Initial Setup. Offline media embeds the OCI payload. The workflow produces installer releases; the installation path still needs VM testing.
 
 ## Remaining milestones
 

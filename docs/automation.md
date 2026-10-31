@@ -14,7 +14,7 @@ Installed systems enable `bootc-fetch-apply-updates.timer`. The upstream schedul
 
 Create a fine-grained GitHub token restricted to `TB516/OS`, with read/write access to Contents, Pull requests, Issues and Workflows. Store it as the Actions secret `RENOVATE_TOKEN` and renew it before expiry. Renovate uses Issues for its dashboard and Workflows to update pinned Actions. Image publication uses GitHub's built-in workflow token.
 
-Renovate is free and runs through its official Action. The updater needs no BuildStream container or Docker socket. After first publication, check GHCR package visibility before using the image for public installs. The installer must explicitly configure the image as its update origin.
+Renovate is free and runs through its official Action. The updater needs no BuildStream container or Docker socket. Keep the GHCR package public so installed systems can fetch updates without credentials. The installer configures `ghcr.io/tb516/os:latest` as its update origin.
 
 ## Image signing
 

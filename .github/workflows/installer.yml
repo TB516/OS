@@ -58,7 +58,9 @@ jobs:
           for name in base_imgref nvidia_imgref; do
             printf '%s\n' "$IMAGE" > "build/installer/live/src/os/$name"
           done
-          cp installer/flatpaks build/installer/live/src/flatpaks
+          sed -n 's/^\[Flatpak Preinstall \(.*\)\]$/\1/p' \
+            files/system/usr/share/flatpak/preinstall.d/personal-os.preinstall \
+            > build/installer/live/src/flatpaks
           sudo podman build --cap-add sys_admin --security-opt label=disable --layers \
             --build-arg REGISTRY=tb516 --build-arg TARGET=os --build-arg TAG=latest \
             -t localhost/os-installer -f build/installer/live/Containerfile build/installer/live

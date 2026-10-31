@@ -13,8 +13,10 @@ done
 
 # The disk contains its own kernel and bootloader. No direct kernel boot or
 # host disks are used. SSH forwarding is accessible only from this host.
+# QEMU's bundled Secure Boot firmware needs SMM and protected pflash.
 exec qemu-system-x86_64 \
-    -name personal-os-test -enable-kvm -machine q35 -cpu host -smp 4 -m 8192 \
+    -name personal-os-test -enable-kvm -machine q35,smm=on -cpu host -smp 4 -m 8192 \
+    -global driver=cfi.pflash01,property=secure,value=on \
     -drive if=pflash,format=raw,readonly=on,file=build/vm/OVMF_CODE.fd \
     -drive if=pflash,format=raw,file=build/vm/OVMF_VARS.fd \
     -drive file=build/vm/os.raw,format=raw,if=virtio \

@@ -1,5 +1,5 @@
 kind: script
-description: Single-layer bootc OCI image for VM bring-up
+description: Single-layer bootc OCI image
 
 build-depends:
 - dakota.bst:freedesktop-sdk.bst:components/fakecap.bst
@@ -41,10 +41,7 @@ config:
       cp -a /layer/usr/etc/. /layer/etc/
       rm -rf /layer/usr/etc
     fi
-  - |
-    if [ -d /layer/etc/dconf/db ]; then
-      dconf update /layer/etc/dconf/db
-    fi
+  - dconf update /layer/etc/dconf/db
   - ldconfig -r /layer -f /layer/etc/ld.so.conf
   - |
     cd "%{install-root}"

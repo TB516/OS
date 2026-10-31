@@ -1,5 +1,5 @@
 kind: stack
-description: GNOME desktop and host services for the first bootable image
+description: GNOME desktop and host services
 
 depends:
 - core/apps.bst
@@ -60,6 +60,5 @@ depends:
 - dakota.bst:freedesktop-sdk.bst:components/containers-common.bst
 - dakota.bst:freedesktop-sdk.bst:components/flatpak-builder.bst
 - dakota.bst:freedesktop-sdk.bst:components/patch.bst
-- dakota.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst
 - dakota.bst:freedesktop-sdk.bst:components/git.bst
 - dakota.bst:freedesktop-sdk.bst:components/curl.bst

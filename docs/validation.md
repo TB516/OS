@@ -17,7 +17,7 @@ Changes are checked with a local build and, when they affect the running system,
 ## Known issues
 
 - Installation and later reads of some image objects have logged fs-verity `FILE CORRUPTED` diagnostics, although the data read back matches the image. The cause is unknown.
-- The initramfs warns about groups missing from its reduced account database, and tmpfiles warns about symlinked home paths and the read-only root. Neither leaves failed services.
+- The initramfs warns about groups missing from its reduced account database. These messages do not leave failed services.
 - GNOME Initial Setup's session can reach its shutdown timeout on the first reboot.
 
 ## Remaining checks
@@ -28,4 +28,4 @@ Changes are checked with a local build and, when they affect the running system,
 - Test Tailscale enrollment, a full libvirt guest installation, browser credential storage and application data across an OS update.
 - Test Bazaar Companion's menu actions and Gradia Capture's screenshot annotations.
 - Test Flatpak retries after an offline first boot, preinstall changes across an OS update, and Sushi previews on removable drives and network mounts.
-- Measure Chunkah's layer reuse and CI cost, and boot and upgrade a chunked image.
+- Measure Chunkah's layer reuse and CI cost, and verify a fresh chunked-image installation and upgrade in a VM. CI-published chunked images already boot on the host.

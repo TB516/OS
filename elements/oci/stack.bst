@@ -5,7 +5,6 @@ depends:
 - core/config.bst
 - core/secure-boot.bst
 - core/os-release.bst
-- dakota.bst:gnome-build-meta.bst:gnomeos/initramfs/signed-modules.bst
 - dakota.bst:gnome-build-meta.bst:oci/initramfs/image.bst
 - dakota.bst:gnome-build-meta.bst:gnomeos-deps/bootc.bst
 - dakota.bst:gnome-build-meta.bst:oci/integration/bootc-config.bst
@@ -23,7 +22,7 @@ public:
     - mkdir -p /boot /run /sysroot /var/home /var/opt /var/mnt /var/srv /var/usrlocal
     - install -d -m0700 /var/roothome
     - install -d -m1777 /var/tmp
-    # bootc 1.16.6 container lint still requires this symlink for composefs images.
+    # bootc lint requires this link with our inherited OSTree configuration.
     - ln -sT sysroot/ostree /ostree
     - ln -sT var/home /home
     - ln -sT var/roothome /root
@@ -31,6 +30,10 @@ public:
     - ln -sT var/mnt /mnt
     - ln -sT var/srv /srv
     - ln -sT ../var/usrlocal /usr/local
+    # These rules expect directories at our symlinks and a writable root.
+    # 10-bootc.conf creates the /var targets; keep the other provisioning rules.
+    - rm /usr/lib/tmpfiles.d/home.conf /usr/lib/tmpfiles.d/root.conf
+    - sed -i '/^d- \/root /d' /usr/lib/tmpfiles.d/provision.conf
     - truncate -s 0 /etc/machine-id
     # Temporary: certifi bundles its own CA list, which still trusts the
     # compromised eMudhra roots that the system list has dropped. Use the
