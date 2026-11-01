@@ -27,7 +27,7 @@ jobs:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
-          renovate-version: 44.198.3
+          renovate-version: 44.199.0
 
       - name: Report kernel changes
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
