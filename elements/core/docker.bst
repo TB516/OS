@@ -9,7 +9,7 @@ sources:
   os: linux
   # renovate: datasource=docker depName=docker.io/library/docker
   track: 29.9.3-dind
-  ref: sha256:3d237fe43f2507dab8cc64bf667bca6d509d747eaeecb02f2a18dee350402d5e
+  ref: sha256:fafc2949724b06fd4e4bc53c446a09149b750693f0abe7f444e9eec1e138fe65
   directory: image
 - kind: local
   path: files/docker
