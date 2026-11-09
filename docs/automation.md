@@ -12,7 +12,7 @@ Publication uses Red Hat's `push-to-registry` Action. It reuses the image alread
 
 Installed systems enable `bootc-fetch-apply-updates.timer`. The upstream schedule checks after one hour of uptime and eight hours after the previous run, with up to two hours of randomized delay. Local drop-ins select the composefs boot condition and run `bootc upgrade --quiet`, staging updates for the next user-initiated reboot. They do not reboot automatically. This requires a working registry update origin; end-to-end updating still needs validation after publication.
 
-Create a fine-grained GitHub token restricted to `TB516/OS`, with read/write access to Contents, Pull requests, Issues and Workflows. Store it as the Actions secret `RENOVATE_TOKEN` and renew it before expiry. Renovate uses Issues for its dashboard and Workflows to update pinned Actions. Image publication uses GitHub's built-in workflow token.
+Renovate runs as the `tbot516` GitHub App, installed only on selected repositories including `TB516/OS`. The app has read/write access to Contents, Pull requests, Issues and Workflows, and read access to Checks and Commit statuses. Store its client ID as the Actions variable `BOT_CLIENT_ID` and its private key as the Actions secret `BOT_PRIVATE_KEY`. Each run creates a one-hour token for this repository, so nothing needs renewing. Renovate uses Issues for its dashboard and Workflows to update pinned Actions. Its PRs and commits are credited to `tbot516[bot]`. Image publication uses GitHub's built-in workflow token.
 
 Renovate is free and runs through its official Action. The updater needs no BuildStream container or Docker socket. Keep the GHCR package public so installed systems can fetch updates without credentials. The installer configures `ghcr.io/tb516/os:latest` as its update origin.
 
@@ -58,7 +58,7 @@ After Renovate finishes, the same workflow imports `scripts/kernel-report.ts` as
 
 Kernel updates show image build timestamps, Dakota source revisions, kernel source versions and changes to the kernel's recorded patch/configuration inputs. The SBOM can arrive after image publication. Missing metadata is reported and retried on the next daily or manual Renovate run. Matching source inputs do not establish that compiled files or signatures are identical.
 
-The report uses the workflow's existing `RENOVATE_TOKEN`. It includes the PR revision and skips publishing if that revision changed during generation. Existing comments are updated only when their content changes. A temporary fetch failure preserves an existing successful report for the same PR revision.
+The report uses the workflow's bot token. It includes the PR revision and skips publishing if that revision changed during generation. Existing comments are updated only when their content changes. A temporary fetch failure preserves an existing successful report for the same PR revision.
 
 Renovate merges GitHub Actions updates in `.github/workflows/` by itself when they don't touch `build.yml` or `validate.yml`, so an automatic merge never skips validation or starts an OS build. This includes its own `renovate-version`. It squash-merges them on a later daily or manual run without waiting for checks; GitHub's auto-merge setting stays off. All other updates stay open for manual review, including Action updates that also change `build.yml` or `validate.yml` and the Dakota ISO builder pin in `installer.yml`.
 
