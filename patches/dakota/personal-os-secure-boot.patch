@@ -1,8 +1,9 @@
 From: Personal OS maintainers
 Subject: [PATCH] Use Personal OS for the enrollment command and boot label
 
-Keep Dakota's signing and EFI paths. Install the helper under our name,
-update its service, and label newly created firmware entries Personal OS.
+Keep Dakota's signing and EFI paths. Install the helper on PATH as
+secure-boot, update its service, label newly created firmware entries
+Personal OS, and replace hints to ujust recipes this image doesn't ship.
 
 diff --git a/elements/bluefin/secure-boot-tools.bst b/elements/bluefin/secure-boot-tools.bst
 --- a/elements/bluefin/secure-boot-tools.bst
@@ -12,7 +13,7 @@ diff --git a/elements/bluefin/secure-boot-tools.bst b/elements/bluefin/secure-bo
  config:
    install-commands:
 -  - install -Dm755 dakota-secure-boot "%{install-root}/usr/libexec/dakota-secure-boot"
-+  - install -Dm755 dakota-secure-boot "%{install-root}/usr/libexec/personal-os-secure-boot"
++  - install -Dm755 dakota-secure-boot "%{install-root}/usr/bin/secure-boot"
    - install -Dm644 dakota-secure-boot-update.service "%{install-root}/usr/lib/systemd/system/dakota-secure-boot-update.service"
    - mkdir -p "%{install-root}/usr/lib/systemd/system/multi-user.target.wants"
    - ln -s ../dakota-secure-boot-update.service "%{install-root}/usr/lib/systemd/system/multi-user.target.wants/dakota-secure-boot-update.service"
@@ -24,7 +25,7 @@ diff --git a/files/secure-boot/dakota-secure-boot-update.service b/files/secure-
  [Service]
  Type=oneshot
 -ExecStart=/usr/libexec/dakota-secure-boot update
-+ExecStart=/usr/libexec/personal-os-secure-boot update
++ExecStart=/usr/bin/secure-boot update
  
  [Install]
  WantedBy=multi-user.target
@@ -44,6 +45,33 @@ diff --git a/files/secure-boot/dakota-secure-boot b/files/secure-boot/dakota-sec
      fi
      order="$(efibootmgr | sed -n 's/^BootOrder: //p')"
      if [ "${order%%,*}" != "$num" ]; then
+@@ -221,7 +221,7 @@
+         else
+             rm -f "$tpm_state/$uuid"
+             echo "Warning: could not keep TPM disk unlock working for $dev. Once Secure Boot"
+-            echo "is on, unlock it with its passphrase and run 'ujust reseal-tpm-unlock'."
++            echo "is on, unlock it with its passphrase and run 'sudo secure-boot reseal'."
+         fi
+     done 3< <(luks_volumes)
+ }
+@@ -490,7 +490,7 @@
+     elif [ "$handheld" -eq 1 ]; then
+         pass "IOMMU enabled, passthrough disabled" "not required on handhelds"
+     elif [ -n "$passthrough" ]; then
+-        fail "IOMMU enabled, passthrough disabled" "remove the $passthrough kernel argument (see 'ujust kargs')"
++        fail "IOMMU enabled, passthrough disabled" "remove the $passthrough kernel argument (see /proc/cmdline)"
+     elif grep -q GenuineIntel /proc/cpuinfo; then
+         fail "IOMMU enabled, passthrough disabled" "turn on VT-d in your firmware settings"
+     else
+@@ -504,7 +504,7 @@
+     if [[ $mode == integrity || $mode == confidentiality ]]; then
+         pass "Kernel lockdown" "mode is '$mode'"
+     else
+-        fail "Kernel lockdown" "mode is '${mode:-unavailable}'; Dakota sets lockdown=integrity, so check 'ujust kargs' for an override"
++        fail "Kernel lockdown" "mode is '${mode:-unavailable}'; Dakota sets lockdown=integrity, so check /proc/cmdline for an override"
+     fi
+ }
+ 
 @@ -633,7 +633,7 @@
      check) cmd_check ;;
      reseal) cmd_reseal ;;
