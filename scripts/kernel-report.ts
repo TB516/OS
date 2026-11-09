@@ -160,7 +160,12 @@ export default async function report({ github, context, core }: ScriptInputs) {
   }
 
   const pulls = await github.paginate(github.rest.pulls.list, { ...repo, state: 'open' });
-  const { data: user } = await github.rest.users.getAuthenticated();
+  // App installation tokens can't read /user, so the workflow passes the bot's login.
+  const botLogin = process.env.BOT_LOGIN;
+
+  if (!botLogin) {
+    throw new Error('BOT_LOGIN is not set');
+  }
 
   for (const pull of pulls) {
     if (!pull.head.ref.startsWith('renovate/')) continue;
@@ -174,7 +179,7 @@ export default async function report({ github, context, core }: ScriptInputs) {
     const issue = { ...repo, issue_number: pull.number };
     const comments = await github.paginate(github.rest.issues.listComments, issue);
     const existing = comments.find(
-      comment => comment.user?.login === user.login && comment.body?.startsWith(marker),
+      comment => comment.user?.login === botLogin && comment.body?.startsWith(marker),
     );
     const revision = `For PR revision \`${pull.head.sha.slice(0, 12)}\`.`;
     const sections = [
