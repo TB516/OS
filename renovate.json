@@ -10,6 +10,7 @@
     "custom.regex"
   ],
   "automerge": false,
+  "reviewers": ["TB516"],
   "prHourlyLimit": 10,
   "customDatasources": {
     "dakota-build": {
