@@ -100,7 +100,9 @@
       "enabled": false
     },
     {
+      "description": "Automerge workflow updates that don't trigger an OS build on main.",
       "matchManagers": ["github-actions"],
+      "matchFileNames": ["!.github/workflows/build.yml"],
       "automerge": true,
       "platformAutomerge": false,
       "ignoreTests": true

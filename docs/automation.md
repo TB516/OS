@@ -60,6 +60,6 @@ Kernel updates show image build timestamps, Dakota source revisions, kernel sour
 
 The report uses the workflow's existing `RENOVATE_TOKEN`. It includes the PR revision and skips publishing if that revision changed during generation. Existing comments are updated only when their content changes. A temporary fetch failure preserves an existing successful report for the same PR revision.
 
-Renovate merges GitHub Actions updates in `.github/workflows/` by itself, including its own `renovate-version`. It squash-merges them on a later daily or manual run without waiting for checks; GitHub's auto-merge setting stays off. All other updates stay open for manual review, including the Dakota ISO builder pin in `installer.yml`.
+Renovate merges GitHub Actions updates in `.github/workflows/` by itself when they don't touch `build.yml`, so an automatic merge never starts an OS build. This includes its own `renovate-version`. It squash-merges them on a later daily or manual run without waiting for checks; GitHub's auto-merge setting stays off. All other updates stay open for manual review, including Action updates that also change `build.yml` and the Dakota ISO builder pin in `installer.yml`.
 
 Review Dakota updates and local integration assumptions before merging. The build starts after merging, so an update PR does not establish that the new OS builds or boots.
