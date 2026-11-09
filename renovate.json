@@ -98,6 +98,12 @@
       "matchManagers": ["github-actions"],
       "matchDepTypes": ["github-runner"],
       "enabled": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "platformAutomerge": false,
+      "ignoreTests": true
     }
   ]
 }
