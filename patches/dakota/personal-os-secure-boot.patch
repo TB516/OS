@@ -1,8 +1,9 @@
 From: Personal OS maintainers
 Subject: [PATCH] Use Personal OS for the enrollment command and boot label
 
-Keep Dakota's signing and EFI paths. Install the helper under our name,
-update its service, and label newly created firmware entries Personal OS.
+Keep Dakota's signing and EFI paths. Install the helper on PATH as
+secure-boot, update its service, and label newly created firmware entries
+Personal OS.
 
 diff --git a/elements/bluefin/secure-boot-tools.bst b/elements/bluefin/secure-boot-tools.bst
 --- a/elements/bluefin/secure-boot-tools.bst
@@ -12,7 +13,7 @@ diff --git a/elements/bluefin/secure-boot-tools.bst b/elements/bluefin/secure-bo
  config:
    install-commands:
 -  - install -Dm755 dakota-secure-boot "%{install-root}/usr/libexec/dakota-secure-boot"
-+  - install -Dm755 dakota-secure-boot "%{install-root}/usr/libexec/personal-os-secure-boot"
++  - install -Dm755 dakota-secure-boot "%{install-root}/usr/bin/secure-boot"
    - install -Dm644 dakota-secure-boot-update.service "%{install-root}/usr/lib/systemd/system/dakota-secure-boot-update.service"
    - mkdir -p "%{install-root}/usr/lib/systemd/system/multi-user.target.wants"
    - ln -s ../dakota-secure-boot-update.service "%{install-root}/usr/lib/systemd/system/multi-user.target.wants/dakota-secure-boot-update.service"
@@ -24,7 +25,7 @@ diff --git a/files/secure-boot/dakota-secure-boot-update.service b/files/secure-
  [Service]
  Type=oneshot
 -ExecStart=/usr/libexec/dakota-secure-boot update
-+ExecStart=/usr/libexec/personal-os-secure-boot update
++ExecStart=/usr/bin/secure-boot update
  
  [Install]
  WantedBy=multi-user.target
