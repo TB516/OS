@@ -2,7 +2,7 @@
 
 ## Requirements
 
-The supplied commands use Podman and just. Publishing also needs skopeo and registry credentials. The BuildStream runner uses a freedesktop-sdk builder container, pinned by digest in `include/builder-image.txt`. It runs rootless with FUSE and the permissions required for BuildStream's nested sandboxes.
+The supplied commands use Podman and mise. Publishing also needs skopeo and registry credentials. The BuildStream runner uses a freedesktop-sdk builder container, pinned by digest in `include/builder-image.txt`. It runs rootless with FUSE and the permissions required for BuildStream's nested sandboxes.
 
 Obtain the builder image before running these commands, or set `BST_IMAGE` to an already installed compatible image. The runner never pulls a container automatically or installs host tools.
 
@@ -39,14 +39,14 @@ Use a lowercase GHCR account and repository. The checked-in reference is `ghcr.i
 
 ```sh
 # Resolve every build and runtime dependency.
-just graph
+mise run graph
 
 # Inspect the software that actually enters the image.
-just contents
+mise run contents
 
 # Build and export the full OS image.
-just build
-just export
+mise run build
+mise run export
 ```
 
 The OCI layout is exported to `build/image`. Export refuses to replace an existing directory. Move an old export aside before making another one.
@@ -59,10 +59,10 @@ For test publication, log in to GHCR and use the same reference configured for t
 
 ```sh
 skopeo login ghcr.io
-just publish ghcr.io/YOUR_ACCOUNT/YOUR_IMAGE:latest
+mise run publish ghcr.io/YOUR_ACCOUNT/YOUR_IMAGE:latest
 ```
 
-`just publish` pushes the exported image without signing or splitting it into reusable layers. Installed systems reject unsigned updates from `ghcr.io/tb516/os`, so do not use this command to replace its release tags. The GitHub build workflow publishes signed, layered images on pushes to `main`. See [automation](automation.md) for signing, dependency update PRs and repository setup.
+`mise run publish` pushes the exported image without signing or splitting it into reusable layers. Installed systems reject unsigned updates from `ghcr.io/tb516/os`, so do not use this command to replace its release tags. The GitHub build workflow publishes signed, layered images on pushes to `main`. See [automation](automation.md) for signing, dependency update PRs and repository setup.
 
 ## Dependency ownership
 
@@ -151,7 +151,7 @@ Image assembly also creates `/dev`, `/proc` and `/sys` explicitly. BuildStream's
 
 The install defaults select `bootloader = "systemd"` and Btrfs. Dakota's current default is XFS, which is why this small configuration is local. A bootc installation must explicitly select `--composefs-backend`; the inherited OSTree `prepare-root.conf` is not a substitute for that option.
 
-A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `just vm` opens that local test disk. See [VM notes](vm.md) for the installation method. The [installer workflow](installer-plan.md) now produces offline ISO releases configured to track the published GHCR image. The ISO installation path and an end-to-end update/rollback cycle still need testing; see [validation notes](validation.md).
+A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `mise run vm` opens that local test disk. See [VM notes](vm.md) for the installation method. The [installer workflow](installer-plan.md) now produces offline ISO releases configured to track the published GHCR image. The ISO installation path and an end-to-end update/rollback cycle still need testing; see [validation notes](validation.md).
 
 ## Upstream references
 
