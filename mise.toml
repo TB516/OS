@@ -1,5 +1,38 @@
-[tools]
-just = 'latest'
-
 [settings]
 lockfile = true
+
+[tasks.validate]
+description = "Resolve the image graph and check the BuildStream runner's shell syntax"
+run = [
+  "bash -n scripts/bst scripts/vm",
+  "./scripts/bst show --deps all --format '%{name}' oci/image.bst > /dev/null",
+]
+
+[tasks.graph]
+description = "Inspect the full pinned graph without building the OS"
+run = "./scripts/bst show --deps all oci/image.bst"
+
+[tasks.contents]
+description = "List only the components staged into the image"
+run = "./scripts/bst show --deps run --format '%{name}' oci/stack.bst"
+
+[tasks.build]
+description = "Compile the full OS image. The first build can be large"
+run = "./scripts/bst build oci/image.bst"
+
+[tasks.export]
+description = "Export a built image to a new OCI directory. Existing output is not replaced"
+run = "./scripts/bst artifact checkout --directory build/image oci/image.bst"
+
+[tasks.vm]
+description = "Boot the installed test disk through UEFI in a QEMU window"
+run = "./scripts/vm"
+
+[tasks.publish]
+description = "Copy an exported image to GHCR. Set include/image.yml to this ref first"
+usage = 'arg "<ref>"'
+run = 'skopeo copy --all oci:build/image "docker://${usage_ref}"'
+
+[tasks.bst]
+description = "Pass arbitrary arguments to the pinned BuildStream container"
+run = "./scripts/bst"

@@ -15,9 +15,9 @@ Secure Boot has passed VM testing using Dakota's signing key. See the [Secure Bo
 To inspect or build it with the project's BuildStream container:
 
 ```sh
-just graph
-just build
-just export
+mise run graph
+mise run build
+mise run export
 ```
 
-Every build includes the full OS. `just export` writes its OCI layout to `build/image`. See the [build guide](docs/building.md) for requirements, image naming and publishing, [VM notes](docs/vm.md) for opening the local test disk, and [validation notes](docs/validation.md) for what has been checked and what remains.
+Every build includes the full OS. `mise run export` writes its OCI layout to `build/image`. See the [build guide](docs/building.md) for requirements, image naming and publishing, [VM notes](docs/vm.md) for opening the local test disk, and [validation notes](docs/validation.md) for what has been checked and what remains.

@@ -3,14 +3,14 @@
 The installed test disk lives at `build/vm/os.raw`. Open it with:
 
 ```sh
-just vm
+mise run vm
 ```
 
-This needs an existing QEMU installation with KVM access and its GTK display backend. `VM_DISPLAY=none just vm` runs without a window. The runner uses four virtual CPUs, 8 GiB RAM, a virtio display and user-mode networking. It boots the disk's own kernel through UEFI and systemd-boot. Q35's System Management Mode and protected flash support the bundled Secure Boot firmware; enforcement still depends on enrolled keys and the firmware's Secure Boot setting.
+This needs an existing QEMU installation with KVM access and its GTK display backend. `VM_DISPLAY=none mise run vm` runs without a window. The runner uses four virtual CPUs, 8 GiB RAM, a virtio display and user-mode networking. It boots the disk's own kernel through UEFI and systemd-boot. Q35's System Management Mode and protected flash support the bundled Secure Boot firmware; enforcement still depends on enrolled keys and the firmware's Secure Boot setting.
 
 Log in as `tester` with no password. Passwordless login is configured on this local test disk. Shut down through GNOME before starting another QEMU process against the same disk.
 
-The VM directory is ignored by Git and is not included in a fresh checkout. `just vm` opens an already installed disk; it does not build or install the OS. Re-exporting `build/image` also does not update this disk.
+The VM directory is ignored by Git and is not included in a fresh checkout. `mise run vm` opens an already installed disk; it does not build or install the OS. Re-exporting `build/image` also does not update this disk.
 
 The runner uses the firmware copies in `build/vm`, so an OS update does not replace a test VM's firmware or enrollment state. When switching from the old separate OVMF build to QEMU's bundled firmware, shut down the VM and preserve the old code/variables pair. Prepare a fresh variables file with the new code and repeat enrollment; do not reuse the old variables file with a different firmware build. The bundled template has no enrolled platform keys, so a new VM starts in Setup Mode with Secure Boot disabled.
 
@@ -32,7 +32,7 @@ bootc install to-disk /dev/vdb --wipe \
   --karg console=ttyS0,115200 --karg systemd.debug_shell=ttyS1
 ```
 
-After installation, shut down the helper and boot `os.raw` alone with `just vm`. The target disk has no dependency on the helper root or the OCI share. These manual steps describe the original test setup; the separate [installer ISO workflow](installer-plan.md) still needs installation testing.
+After installation, shut down the helper and boot `os.raw` alone with `mise run vm`. The target disk has no dependency on the helper root or the OCI share. These manual steps describe the original test setup; the separate [installer ISO workflow](installer-plan.md) still needs installation testing.
 
 The local origin is a placeholder. Testing upgrades requires selecting a reachable published image, such as `ghcr.io/tb516/os:latest`, as the bootc origin. `--skip-fetch-check` was used for this unpublished local image.
 
