@@ -18,6 +18,7 @@ Changes are checked with a local build and, when they affect the running system,
 
 Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX 7800 XT.
 
+- An earlier installer ISO release installed it, with GNOME Initial Setup creating the account. It tracks the published registry image for updates.
 - It boots through the enrolled shim chain with Secure Boot enforced and integrity lockdown. TPM 2.0 is present, and the AMD IOMMU runs in translated mode.
 - Updates fetched from the published registry image stage and boot with Secure Boot still enabled.
 - Accelerated graphics work on the amdgpu driver, and audio plays through HDMI and a USB headset.
@@ -31,7 +32,7 @@ Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX
 ## Remaining checks
 
 - Roll back to a previous deployment, including with Secure Boot enabled.
-- Install through the installer ISO, including account creation, update origin and offline media. See [installer releases](installer-plan.md).
+- Install through a current installer ISO, including offline installation. See [installer releases](installer-plan.md).
 - Test firmware capsule updates, TPM disk unlock and EAC. See [Secure Boot bring-up](secure-boot.md).
 - Test Tailscale enrollment, a full libvirt guest installation, browser credential storage and application data across an OS update.
 - Test Bazaar Companion's menu actions and Gradia Capture's screenshot annotations.

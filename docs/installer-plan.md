@@ -1,6 +1,6 @@
 # Installer releases
 
-The workflow has completed successfully on GitHub. No installer ISO has been booted or installed in a VM yet.
+The workflow has completed successfully on GitHub. An earlier installer ISO has installed Personal OS on physical hardware.
 
 ## Create an installer
 
@@ -22,4 +22,4 @@ The live environment and offline payload use the pulled `latest` image. Installa
 
 ## Validation still needed
 
-Test live boot, graphical installation, first-user creation, boot without the ISO and an update from GHCR in a fresh VM before hardware installation. The upstream builder adjusts install configuration and repackages the offline payload, so the existing direct bootc VM test does not validate this installer path. The OS payload includes Dakota's signed boot chain, but Secure Boot for the live installer and its installation path remains unvalidated. See [Secure Boot bring-up](secure-boot.md) for the tested direct bootc enrollment path.
+An earlier installer release has completed live boot, graphical installation, first-user creation, boot without the ISO and updates from GHCR on physical hardware. A current ISO and offline installation still need testing. The upstream builder adjusts install configuration and repackages the offline payload, so the direct bootc VM test does not validate this installer path. The OS payload includes Dakota's signed boot chain, but Secure Boot for the live installer remains unvalidated. See [Secure Boot bring-up](secure-boot.md) for the tested direct bootc enrollment path.
