@@ -149,7 +149,7 @@ Image assembly also creates `/dev`, `/proc` and `/sys` explicitly. BuildStream's
 
 The install defaults select `bootloader = "systemd"` and Btrfs. Dakota's current default is XFS, which is why this small configuration is local. A bootc installation must explicitly select `--composefs-backend`; the inherited OSTree `prepare-root.conf` is not a substitute for that option.
 
-A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `mise run vm` opens that local test disk. See [VM notes](vm.md) for the installation method. The [installer workflow](installer.md) produces offline ISO releases configured to track the published GHCR image. See [validation notes](validation.md) for what has been tested.
+See [VM notes](vm.md) for the local test disk and the [installer guide](installer.md) for ISO releases.
 
 ## Upstream references
 

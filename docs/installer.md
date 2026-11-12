@@ -6,7 +6,7 @@
 2. Open **Actions → Build installer ISO → Run workflow**, using `main`.
 3. Download the resulting installer prerelease from **Releases**. Follow its instructions to join the numbered ISO parts, verify the checksums and restore the ISO to a USB drive with GNOME Disks.
 
-The workflow runs on a standard Ubuntu GitHub runner. It installs its tools on that disposable runner and does not preserve a build cache. No extra secret is needed; image pulls and release uploads use the workflow token.
+No extra secret is needed; image pulls and release uploads use the workflow token.
 
 Each invocation creates a separate prerelease named `installer-<run-id>-<attempt>`. Files are split into 1900 MiB parts because GitHub release assets must be smaller than 2 GiB. `SHA256SUMS` checks the reconstructed ISO, `PARTS-SHA256SUMS` checks the downloads, and `image-digest.txt` records the published source image.
 

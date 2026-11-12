@@ -6,7 +6,7 @@ Changes are checked with a local build and, when they affect the running system,
 
 - The image builds, passes `bootc container lint`, installs with bootc's composefs backend, Btrfs and systemd-boot, and boots through UEFI into GNOME with no failed services.
 - GNOME Initial Setup creates a conventional account. Password login and changes in `/etc`, `/var` and the home directory survive a reboot.
-- Secure Boot enrollment, enforced boot, unsigned-module rejection and EFI refresh work. See [Secure Boot](secure-boot.md).
+- Secure Boot enrollment and enforced boot work through Microsoft-trusted shim. Firmware rejects a bootloader launch that bypasses shim, the kernel rejects an unsigned module, and the maintenance service restores stale or missing EFI files. Dakota's checker reports eight passes and two waits for key recognition. See [Secure Boot](secure-boot.md).
 - NetworkManager and resolved provide networking. Docker with Compose and Buildx works alongside firewalld, as do rootless Podman and Distrobox.
 - Libvirt's default network starts with dnsmasq, and a KVM guest boots through libvirt. Tailscale starts and waits for enrollment.
 - Flatpak preinstallation installs the default apps and respects removals. Sushi renders previews from Files.
