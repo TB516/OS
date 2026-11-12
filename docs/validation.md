@@ -20,7 +20,7 @@ Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX
 
 - An earlier installer ISO release installed it, with GNOME Initial Setup creating the account. It tracks the published registry image for updates.
 - It boots through the enrolled shim chain with Secure Boot enforced and integrity lockdown. TPM 2.0 is present, and the AMD IOMMU runs in translated mode.
-- Updates fetched from the published registry image stage and boot with Secure Boot still enabled, and `bootc rollback` returns to the previous deployment.
+- Updates fetched from the published registry image stage and boot with Secure Boot still enabled.
 - Accelerated graphics work on the amdgpu driver, and audio plays through HDMI and a USB headset.
 
 ## Known issues
@@ -31,6 +31,7 @@ Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX
 
 ## Remaining checks
 
+- Roll back to the previous deployment with Secure Boot enabled, through `bootc rollback` or the boot menu.
 - Install through a current installer ISO, including offline installation and the live installer under Secure Boot. See [installer releases](installer.md).
 - Apply a firmware capsule update through fwupd. EFI refresh and the fwupd shim path have been checked.
 - Test EAC's host service with an actual protected game once Linux v2 support is available. Hardware and VM checks cannot establish Epic's acceptance. See [Secure Boot](secure-boot.md#eac-requirements-and-review-gates).

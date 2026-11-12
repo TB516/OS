@@ -12,7 +12,7 @@ Log in as `tester` with no password. Passwordless login is configured on this lo
 
 The VM directory is ignored by Git and is not included in a fresh checkout. `mise run vm` opens an already installed disk; it does not build or install the OS. Re-exporting `build/image` also does not update this disk.
 
-The runner uses the firmware copies in `build/vm`, so an OS update does not replace a test VM's firmware or enrollment state. When switching from the old separate OVMF build to QEMU's bundled firmware, shut down the VM and preserve the old code/variables pair. Prepare a fresh variables file with the new code and repeat enrollment; do not reuse the old variables file with a different firmware build. The bundled template has no enrolled platform keys, so a new VM starts in Setup Mode with Secure Boot disabled.
+The runner uses the firmware copies in `build/vm`, so an OS update does not replace a test VM's firmware or enrollment state. Do not reuse a variables file with a different firmware build. The bundled template has no enrolled platform keys, so a new VM starts in Setup Mode with Secure Boot disabled.
 
 ## Installation method used for bring-up
 
