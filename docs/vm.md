@@ -32,7 +32,7 @@ bootc install to-disk /dev/vdb --wipe \
   --karg console=ttyS0,115200 --karg systemd.debug_shell=ttyS1
 ```
 
-After installation, shut down the helper and boot `os.raw` alone with `mise run vm`. The target disk has no dependency on the helper root or the OCI share. These manual steps describe the original test setup; the separate [installer ISO workflow](installer-plan.md) still needs installation testing.
+After installation, shut down the helper and boot `os.raw` alone with `mise run vm`. The target disk has no dependency on the helper root or the OCI share. These manual steps describe the original test setup, separate from the [installer ISO](installer.md).
 
 The local origin is a placeholder. Testing upgrades requires selecting a reachable published image, such as `ghcr.io/tb516/os:latest`, as the bootc origin. `--skip-fetch-check` was used for this unpublished local image.
 
@@ -42,4 +42,4 @@ The test disk has a root debug shell on its second serial port, exposed through 
 
 The runner forwards host `127.0.0.1:2222` to guest port 22. During testing, a temporary SSH daemon, its service account and an authorized key were configured inside the VM. That transient daemon does not start after a reboot. The image does not currently provide an enabled SSH server.
 
-Test credentials, screenshots, install logs and command results remain under the ignored `build/vm` directory. The VM presents a virtual sound card, but its QEMU audio backend discards output. Device detection was checked; audible playback and hardware acceleration were not.
+Test credentials, screenshots, install logs and command results remain under the ignored `build/vm` directory. The VM presents a virtual sound card, but its QEMU audio backend discards output.

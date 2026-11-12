@@ -66,11 +66,9 @@ mise run publish ghcr.io/YOUR_ACCOUNT/YOUR_IMAGE:latest
 
 ## Dependency ownership
 
-See [design history](plan.md) for the composition decisions and remaining milestones.
+`elements/dakota.bst` pins a commit on Dakota's `testing` branch and is the only base pin. Dakota's rolling `next` branch follows GNOME's development branch and is not used. Dakota owns the GNOME and freedesktop-sdk junctions, including their patch queues and overrides, so our artifacts match the ones Dakota's CI pushes to the Bluefin cache. Local elements refer to them as `dakota.bst:gnome-build-meta.bst:…` and `dakota.bst:freedesktop-sdk.bst:…`. Our junction settings override the GNOME apps list, os-release and boot modules inside Dakota's GNOME junction. Dakota and GNOME share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
 
-`elements/dakota.bst` pins a commit on Dakota's `testing` branch and is the only base pin. Dakota owns the GNOME and freedesktop-sdk junctions, including their patch queues and overrides, so our artifacts match the ones Dakota's CI pushes to the Bluefin cache. Local elements refer to them as `dakota.bst:gnome-build-meta.bst:…` and `dakota.bst:freedesktop-sdk.bst:…`. Our junction settings override the GNOME apps list, os-release and boot modules inside Dakota's GNOME junction. Dakota and GNOME share the top-level plugin junctions. The freedesktop-sdk project's internal plugins retain their upstream isolation.
-
-The graph therefore includes Dakota's GNOME-level choices: its Plymouth theme, bootc, Mesa and ffmpeg builds, initramfs modules and dnsmasq fix. Review those when updating the Dakota pin. Normal builds use the committed refs, not the tips of the tracking branches.
+The graph therefore includes Dakota's GNOME-level choices: its Plymouth theme, bootc, Mesa and ffmpeg builds, initramfs modules and dnsmasq fix. Review those when updating the Dakota pin. Normal builds use the committed refs, not the tips of the tracking branches. Use upstream kernel, graphics, firmware and memory defaults, and add overrides only for a demonstrated requirement.
 
 Local stacks own the session, native application selection, boot configuration and image assembly. Files and Disks are native applications in the OS. The runtime omits GNOME Software, native Papers and Sushi, Tour, GNOME user documentation, and Dakota's aggregate configuration. Sushi is installed as a Flatpak for file previews; PDF thumbnails are not included.
 
@@ -84,7 +82,7 @@ The OCI source follows Dakota's regular `testing` image and pins an amd64 manife
 
 The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-oci-zstd.patch` to accept zstd layers and manifests whose media type is supplied only by the HTTP header. It also accepts and writes the standard `sha256:` digest prefix so Renovate can manage the pin directly. Python 3.14 or later is required for zstd extraction; the pinned builder provides it. Remove this patch once the upstream plugin supports these formats and the prefixed digest syntax.
 
-The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot bring-up](secure-boot.md) for enrollment and remaining hardware and update validation.
+The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot](secure-boot.md) for enrollment.
 
 BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker` `-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
@@ -151,7 +149,7 @@ Image assembly also creates `/dev`, `/proc` and `/sys` explicitly. BuildStream's
 
 The install defaults select `bootloader = "systemd"` and Btrfs. Dakota's current default is XFS, which is why this small configuration is local. A bootc installation must explicitly select `--composefs-backend`; the inherited OSTree `prepare-root.conf` is not a substitute for that option.
 
-A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `mise run vm` opens that local test disk. See [VM notes](vm.md) for the installation method. The [installer workflow](installer-plan.md) now produces offline ISO releases configured to track the published GHCR image. The ISO installation path and an end-to-end update/rollback cycle still need testing; see [validation notes](validation.md).
+A temporary installer VM has installed the image onto a virtual disk, which boots through UEFI into GNOME. `mise run vm` opens that local test disk. See [VM notes](vm.md) for the installation method. The [installer workflow](installer.md) produces offline ISO releases configured to track the published GHCR image. See [validation notes](validation.md) for what has been tested.
 
 ## Upstream references
 

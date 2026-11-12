@@ -1,6 +1,6 @@
-# Secure Boot bring-up
+# Secure Boot
 
-Personal OS uses Dakota's signed boot chain. Disposable UEFI VM tests pass, including MokManager enrollment, enforced Secure Boot, unsigned-module rejection and EFI refresh. On physical hardware, Personal OS runs daily with Secure Boot enforced and integrity lockdown, and registry updates boot with Secure Boot still enabled. Rollback and EAC acceptance remain unvalidated.
+Personal OS uses Dakota's signed boot chain. See [validation notes](validation.md) for what has been tested.
 
 ## What the image supplies
 
@@ -43,11 +43,6 @@ Lockdown prevents hibernation and loading modules signed by untrusted keys. Disa
 
 Dakota's `check` command is an upstream diagnostic, not Epic's acceptance test. Read its reported failures/waits; its exit code alone does not establish readiness.
 
-The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot and the signed kernel. Dakota's checker reports eight passes and two waits for key recognition. Firmware rejects a direct bootloader launch that bypasses shim, and the kernel rejects a module with its signature removed. The maintenance service restores stale/missing EFI files. See [validation notes](validation.md) for what has been tested.
-
-Remaining hardware and update validation:
-
-- Exercise a rollback while Secure Boot remains enabled. EFI refresh and the fwupd shim path have been checked; an actual firmware capsule update has not.
-- When available, test EAC's host service with the intended game launcher and an actual protected game. Hardware/VM checks cannot establish Epic's acceptance.
+The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot and the signed kernel. Dakota's checker reports eight passes and two waits for key recognition. Firmware rejects a direct bootloader launch that bypasses shim, and the kernel rejects a module with its signature removed. The maintenance service restores stale/missing EFI files.
 
 The image does not include an NVIDIA-specific out-of-tree driver stack. Any future out-of-tree modules need a signing key recognized by EAC as well.

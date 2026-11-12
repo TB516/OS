@@ -6,7 +6,7 @@ Changes are checked with a local build and, when they affect the running system,
 
 - The image builds, passes `bootc container lint`, installs with bootc's composefs backend, Btrfs and systemd-boot, and boots through UEFI into GNOME with no failed services.
 - GNOME Initial Setup creates a conventional account. Password login and changes in `/etc`, `/var` and the home directory survive a reboot.
-- Secure Boot enrollment, enforced boot, unsigned-module rejection and EFI refresh work. See [Secure Boot bring-up](secure-boot.md).
+- Secure Boot enrollment, enforced boot, unsigned-module rejection and EFI refresh work. See [Secure Boot](secure-boot.md).
 - NetworkManager and resolved provide networking. Docker with Compose and Buildx works alongside firewalld, as do rootless Podman and Distrobox.
 - Libvirt's default network starts with dnsmasq, and a KVM guest boots through libvirt. Tailscale starts and waits for enrollment.
 - Flatpak preinstallation installs the default apps and respects removals. Sushi renders previews from Files.
@@ -20,7 +20,7 @@ Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX
 
 - An earlier installer ISO release installed it, with GNOME Initial Setup creating the account. It tracks the published registry image for updates.
 - It boots through the enrolled shim chain with Secure Boot enforced and integrity lockdown. TPM 2.0 is present, and the AMD IOMMU runs in translated mode.
-- Updates fetched from the published registry image stage and boot with Secure Boot still enabled.
+- Updates fetched from the published registry image stage and boot with Secure Boot still enabled, and `bootc rollback` returns to the previous deployment.
 - Accelerated graphics work on the amdgpu driver, and audio plays through HDMI and a USB headset.
 
 ## Known issues
@@ -31,10 +31,10 @@ Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX
 
 ## Remaining checks
 
-- Roll back to a previous deployment, including with Secure Boot enabled.
-- Install through a current installer ISO, including offline installation. See [installer releases](installer-plan.md).
-- Test firmware capsule updates and EAC. See [Secure Boot bring-up](secure-boot.md).
+- Install through a current installer ISO, including offline installation and the live installer under Secure Boot. See [installer releases](installer.md).
+- Apply a firmware capsule update through fwupd. EFI refresh and the fwupd shim path have been checked.
+- Test EAC's host service with an actual protected game once Linux v2 support is available. Hardware and VM checks cannot establish Epic's acceptance. See [Secure Boot](secure-boot.md#eac-requirements-and-review-gates).
 - Test Tailscale enrollment, a full libvirt guest installation, browser credential storage and application data across an OS update.
 - Test Bazaar Companion's menu actions and Gradia Capture's screenshot annotations.
 - Test Flatpak retries after an offline first boot, preinstall changes across an OS update, and Sushi previews on removable drives and network mounts.
-- Measure Chunkah's layer reuse and CI cost, and verify a fresh chunked-image installation and upgrade in a VM. CI-published chunked images already boot on the host.
+- Measure Chunkah's layer reuse and CI cost across two builds with a small update.
