@@ -1,8 +1,6 @@
-# Secure Boot bring-up
+# Secure Boot
 
-Personal OS uses Dakota's signed boot chain. The full image build and disposable UEFI VM tests pass, including MokManager enrollment, enforced Secure Boot, unsigned-module rejection and EFI refresh. Hardware upgrade and EAC acceptance remain unvalidated.
-
-QEMU's bundled Secure Boot firmware has also booted the existing test disk to GNOME, completed Dakota's MokManager enrollment and booted with Secure Boot enabled and kernel integrity lockdown. Firmware rejected a direct systemd-boot launch that bypassed shim, then successfully booted through shim. This test started with the Personal OS 51.0 disk and kernel 7.2.11, fresh QEMU firmware variables and Microsoft platform keys provisioned with `virt-fw-vars`. The combined cleanup image was then staged from a local OCI layout and booted to GNOME with kernel 7.3.0 and Secure Boot still enabled. The earlier unsigned-module and EFI refresh tests used the separate freedesktop-sdk OVMF build. Fresh installation, registry-based updates and rollback, TPM behavior and hardware acceptance remain unvalidated for the bundled firmware.
+Personal OS uses Dakota's signed boot chain. See [validation notes](validation.md) for what has been tested.
 
 ## What the image supplies
 
@@ -12,9 +10,7 @@ Dakota's merged source recipes provide the enrollment helper, its boot-time EFI 
 
 Signing stays upstream. Keep Dakota's `secure_boot_signing` build option false here: enabling it would request upstream signing elements and private-key inputs, which this project does not need.
 
-Renovate follows Dakota's production `testing` image, and builds use the exact pinned digest. The import rejects unsigned payloads; review the payload before accepting an image update.
-
-## Enrollment after build and boot validation
+## Enrollment
 
 The supported initial path is installation or upgrade with firmware Secure Boot disabled, followed by enrollment using Dakota's tool. Installing directly with Secure Boot already enforcing remains unvalidated. Bootc's installer uses the imported signed systemd-boot automatically; enrollment adds the shim entry needed for firmware to trust it.
 
@@ -44,13 +40,5 @@ Lockdown prevents hibernation and loading modules signed by untrusted keys. Disa
 [Epic's Linux v2 requirements](https://onlineservices.epicgames.com/news/introducing-easy-anti-cheat-linux-v2) include recognized signing keys, signed modules, TPM 2.0, enforced Secure Boot, measured boot, IOMMU translation, integrity lockdown, disabled kexec and an active BPF LSM. All enrolled MOKs must be recognized when booting through shim. Dakota's certificate is distinct from Universal Blue's; its EAC acceptance remains unconfirmed.
 
 Dakota's `check` command is an upstream diagnostic, not Epic's acceptance test. Read its reported failures/waits; its exit code alone does not establish readiness.
-
-The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot and the signed kernel. Dakota's checker reports eight passes and two waits for key recognition. Firmware rejects a direct bootloader launch that bypasses shim, and the kernel rejects a module with its signature removed. The maintenance service restores stale/missing EFI files. See [validation notes](validation.md) for what has been tested.
-
-Remaining hardware and update validation:
-
-- Exercise an OS update and rollback while Secure Boot remains enabled. EFI refresh and the fwupd shim path have been checked; an actual firmware capsule update has not.
-- Validate firmware TPM/IOMMU state and enrollment on the target hardware, including TPM disk unlock if used.
-- When available, test EAC's host service with the intended game launcher and an actual protected game. Hardware/VM checks cannot establish Epic's acceptance.
 
 The image does not include an NVIDIA-specific out-of-tree driver stack. Any future out-of-tree modules need a signing key recognized by EAC as well.

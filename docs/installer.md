@@ -1,14 +1,12 @@
 # Installer releases
 
-The workflow has completed successfully on GitHub. No installer ISO has been booted or installed in a VM yet.
-
 ## Create an installer
 
 1. Push the project to GitHub and let **Build OS** publish `ghcr.io/tb516/os:latest`. Make the GHCR package public so installed systems can fetch updates without credentials.
 2. Open **Actions → Build installer ISO → Run workflow**, using `main`.
 3. Download the resulting installer prerelease from **Releases**. Follow its instructions to join the numbered ISO parts, verify the checksums and restore the ISO to a USB drive with GNOME Disks.
 
-The workflow runs on a standard Ubuntu GitHub runner. It installs its tools on that disposable runner and does not preserve a build cache. No extra secret is needed; image pulls and release uploads use the workflow token.
+No extra secret is needed; image pulls and release uploads use the workflow token.
 
 Each invocation creates a separate prerelease named `installer-<run-id>-<attempt>`. Files are split into 1900 MiB parts because GitHub release assets must be smaller than 2 GiB. `SHA256SUMS` checks the reconstructed ISO, `PARTS-SHA256SUMS` checks the downloads, and `image-digest.txt` records the published source image.
 
@@ -20,6 +18,4 @@ The workflow checks out a pinned revision of [Dakota's ISO builder](https://gith
 
 The live environment and offline payload use the pulled `latest` image. Installation selects systemd-boot, composefs and Btrfs, with GNOME Initial Setup creating the first account. Installed systems track `ghcr.io/tb516/os:latest` for subsequent updates. Rebuilding the ISO on each OS update is unnecessary.
 
-## Validation still needed
-
-Test live boot, graphical installation, first-user creation, boot without the ISO and an update from GHCR in a fresh VM before hardware installation. The upstream builder adjusts install configuration and repackages the offline payload, so the existing direct bootc VM test does not validate this installer path. The OS payload includes Dakota's signed boot chain, but Secure Boot for the live installer and its installation path remains unvalidated. See [Secure Boot bring-up](secure-boot.md) for the tested direct bootc enrollment path.
+The upstream builder adjusts install configuration and repackages the offline payload, so the direct bootc VM install does not test this path. See [validation notes](validation.md) for what has been tested.
