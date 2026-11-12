@@ -1,6 +1,6 @@
 # Secure Boot bring-up
 
-Personal OS uses Dakota's signed boot chain. Disposable UEFI VM tests pass, including MokManager enrollment, enforced Secure Boot, unsigned-module rejection and EFI refresh. On physical hardware, Personal OS runs daily with Secure Boot enforced and integrity lockdown, and registry updates boot with Secure Boot still enabled. Rollback, TPM disk unlock and EAC acceptance remain unvalidated.
+Personal OS uses Dakota's signed boot chain. Disposable UEFI VM tests pass, including MokManager enrollment, enforced Secure Boot, unsigned-module rejection and EFI refresh. On physical hardware, Personal OS runs daily with Secure Boot enforced and integrity lockdown, and registry updates boot with Secure Boot still enabled. Rollback and EAC acceptance remain unvalidated.
 
 ## What the image supplies
 
@@ -48,7 +48,6 @@ The tested VM boots through Microsoft-trusted shim, Dakota-signed systemd-boot a
 Remaining hardware and update validation:
 
 - Exercise a rollback while Secure Boot remains enabled. EFI refresh and the fwupd shim path have been checked; an actual firmware capsule update has not.
-- Validate TPM disk unlock on an encrypted host.
 - When available, test EAC's host service with the intended game launcher and an actual protected game. Hardware/VM checks cannot establish Epic's acceptance.
 
 The image does not include an NVIDIA-specific out-of-tree driver stack. Any future out-of-tree modules need a signing key recognized by EAC as well.

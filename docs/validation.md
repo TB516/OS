@@ -33,7 +33,7 @@ Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX
 
 - Roll back to a previous deployment, including with Secure Boot enabled.
 - Install through a current installer ISO, including offline installation. See [installer releases](installer-plan.md).
-- Test firmware capsule updates, TPM disk unlock and EAC. See [Secure Boot bring-up](secure-boot.md).
+- Test firmware capsule updates and EAC. See [Secure Boot bring-up](secure-boot.md).
 - Test Tailscale enrollment, a full libvirt guest installation, browser credential storage and application data across an OS update.
 - Test Bazaar Companion's menu actions and Gradia Capture's screenshot annotations.
 - Test Flatpak retries after an offline first boot, preinstall changes across an OS update, and Sushi previews on removable drives and network mounts.
