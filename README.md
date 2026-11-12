@@ -8,9 +8,9 @@ The OS includes native Ghostty, Docker with Compose and Buildx, Podman, Distrobo
 
 For development tools, [mise](https://mise.jdx.dev/getting-started.html) installs in your user account automatically after login with an internet connection. Open a new terminal once installation finishes. It updates independently through `mise self-update`; `mise upgrade` updates the tools it manages.
 
-The image builds and boots to GNOME in a VM. Desktop apps, containers and persistence across reboot have been tested. Installer releases are available, but their installation path still needs VM testing. See the [installer guide](docs/installer-plan.md) for creating a release and preparing a USB drive.
+The image builds, boots to GNOME in a VM and runs as a daily desktop on physical hardware. Desktop apps, containers and persistence across reboot have been tested. Installer releases are available, but their installation path still needs VM testing. See the [installer guide](docs/installer-plan.md) for creating a release and preparing a USB drive.
 
-Secure Boot has passed VM testing using Dakota's signing key. See the [Secure Boot guide](docs/secure-boot.md) for enrollment and remaining hardware checks.
+Secure Boot works with Dakota's signing key in VMs and on physical hardware. See the [Secure Boot guide](docs/secure-boot.md) for enrollment and remaining checks.
 
 To inspect or build it with the project's BuildStream container:
 

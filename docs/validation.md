@@ -14,6 +14,14 @@ Changes are checked with a local build and, when they affect the running system,
 - The compromised eMudhra test hosts fail TLS verification through OpenSSL, GnuTLS and Python, while normal HTTPS works.
 - PipeWire and WirePlumber expose the virtual audio device.
 
+## Verified on hardware
+
+Personal OS runs as a daily desktop on an AMD Ryzen 9000 system with a Radeon RX 7800 XT.
+
+- It boots through the enrolled shim chain with Secure Boot enforced and integrity lockdown. TPM 2.0 is present, and the AMD IOMMU runs in translated mode.
+- Updates fetched from the published registry image stage and boot with Secure Boot still enabled.
+- Accelerated graphics work on the amdgpu driver, and audio plays through HDMI and a USB headset.
+
 ## Known issues
 
 - Installation and later reads of some image objects have logged fs-verity `FILE CORRUPTED` diagnostics, although the data read back matches the image. The cause is unknown.
@@ -22,9 +30,9 @@ Changes are checked with a local build and, when they affect the running system,
 
 ## Remaining checks
 
-- Publish successive images and verify fetching, staging, rebooting into an update and rolling back, including with Secure Boot enabled.
+- Roll back to a previous deployment, including with Secure Boot enabled.
 - Install through the installer ISO, including account creation, update origin and offline media. See [installer releases](installer-plan.md).
-- Test accelerated graphics, audible output, physical hardware, firmware capsule updates, TPM disk unlock and EAC. See [Secure Boot bring-up](secure-boot.md).
+- Test firmware capsule updates, TPM disk unlock and EAC. See [Secure Boot bring-up](secure-boot.md).
 - Test Tailscale enrollment, a full libvirt guest installation, browser credential storage and application data across an OS update.
 - Test Bazaar Companion's menu actions and Gradia Capture's screenshot annotations.
 - Test Flatpak retries after an offline first boot, preinstall changes across an OS update, and Sushi previews on removable drives and network mounts.
