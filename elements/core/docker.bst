@@ -8,8 +8,8 @@ sources:
   architecture: amd64
   os: linux
   # renovate: datasource=docker depName=docker.io/library/docker
-  track: 29.9.3-dind
-  ref: sha256:fafc2949724b06fd4e4bc53c446a09149b750693f0abe7f444e9eec1e138fe65
+  track: 29.10.0-dind
+  ref: sha256:4eea5f48923988bc80515bf582ffec1eece35f5c13bceae1b2074dc80ead1e3d
   directory: image
 - kind: local
   path: files/docker
