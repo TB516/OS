@@ -84,7 +84,7 @@ The pinned BuildStream docker source needs `patches/buildstream-plugins/docker-o
 
 The import verifies kernel and EFI signatures against the certificate from that image, requires signed modules and checks the kernel's security capabilities/default LSMs. It fails rather than silently accepting an unsigned update. Lockdown and disabled kexec come from Dakota's recipes; local boot arguments enable Intel IOMMU and disable IOMMU passthrough. See [Secure Boot](secure-boot.md) for enrollment.
 
-BuildStream extracts Docker Engine, CLI, Compose and Buildx from the official `docker.io/library/docker` `-dind` image, pinned to its Linux amd64 manifest digest. Only selected binaries enter the OS; Alpine files and container entrypoints are excluded. Docker uses embedded containerd, with its runtime helpers under `/usr/libexec/docker`. Only its service adds that directory to PATH, keeping Podman's runtime independent. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
+BuildStream extracts Docker Compose from the official `docker.io/docker/compose-bin` image, pinned to its Linux amd64 manifest digest. It is installed as `/usr/libexec/docker/cli-plugins/docker-compose`, one of the paths `podman compose` checks for a provider, so it is not on PATH. The mise binary lives in each user's home directory and is not part of the image or Renovate's dependencies.
 
 `mise-bootstrap.service` runs at user login and uses the official `https://mise.run` installer to install mise into `~/.local/bin/mise`. The installer selects the release and verifies its download. System accounts are excluded. An existing file at that path skips installation; failures retry every 15 minutes while the user manager is running. A successful installation is left alone on subsequent logins. Removing the binary makes it eligible for installation again; use `systemctl --user mask --now mise-bootstrap.service` to opt out first.
 
@@ -104,11 +104,9 @@ These defaults do not replace saved user settings after a rebase. If needed, ena
 
 Ghostty is the preferred terminal, including Ctrl+Alt+T. The build installs its resources through Dakota's full Ghostty recipe. A local filter preserves that cached artifact and permits its bundled `terminfo/g/ghostty` entry to replace ncurses' copy. It repeats Ghostty's runtime dependencies because BuildStream filters do not inherit them; review that short list when updating Dakota. The local configuration adds terminal selection, GNOME defaults and an editable dconf shortcut. It imposes no prompt, font or shell framework.
 
-Docker starts as a system service. Use `sudo docker` initially. Adding an account to the `docker` group is a separate local choice that grants control of the root daemon. Distrobox uses its upstream autodetection, which prefers the included Podman, and runs rootless by default for regular users. No image-level Distrobox configuration overrides that choice. Docker remains available independently with Compose and Buildx.
+Podman is the only container engine. `podman compose` runs the bundled Docker Compose against Podman's API socket. The image enables `podman.socket` for every user so the API starts on demand, and Compose builds use its classic builder through Podman. Dev container tools that support Podman, such as Zed with `use_podman` enabled, use the same path. Distrobox uses its upstream autodetection, which selects Podman, and runs rootless by default for regular users. No image-level Distrobox configuration overrides that choice.
 
 Flatpak Builder has native `patch`, `strip`, `eu-strip` and `eu-elfcompress` available. Local recipes keep the binutils and elfutils binaries in the image because freedesktop-sdk classifies them as development files, which image composition excludes.
-
-`patches/dakota/firewalld-iptables.patch` adds a patch to Dakota's GNOME patch queue that adds iptables to firewalld's build and runtime dependencies. This lets its configure step discover the real IPv4 and IPv6 command paths instead of recording `/bin/false`. Docker's default iptables backend needs these paths for firewalld's direct API, even though firewalld itself keeps its nftables backend. Remove the patch when upstream supplies the dependency.
 
 `patches/dakota/initramfs-firmware.patch` adds a patch to Dakota's GNOME patch queue that puts firmware requested by built-in kernel drivers into the initramfs. Those drivers load before the root filesystem is mounted, but GNOME's initramfs generator only looked for `.xz` firmware while freedesktop-sdk ships `.zst` or uncompressed files. It also adds `wireless-regdb-bin` to the initramfs. Built-in cfg80211 reads `regulatory.db` once at boot and never retries, so without it Wi-Fi stayed on the restrictive world regulatory domain. Remove the patch when upstream fixes the lookup and dependency.
 
@@ -155,7 +153,7 @@ See [VM notes](vm.md) for the local test disk and the [installer guide](installe
 
 - [Dakota](https://github.com/projectbluefin/dakota)
 - [GNOME build metadata](https://gitlab.gnome.org/GNOME/gnome-build-meta)
-- [Official Docker image recipe](https://github.com/docker-library/docker)
+- [Docker Compose](https://github.com/docker/compose)
 - [mise installation](https://mise.jdx.dev/installing-mise.html)
 
 The image assembly follows the Dakota recipes, and the GNOME recipes Dakota selects, at the pinned revision. The shared plugin junctions follow upstream release tags, independently of Dakota. Upstream components retain their own licenses.
