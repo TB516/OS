@@ -67,8 +67,8 @@
     },
     {
       "matchDatasources": ["docker"],
-      "matchPackageNames": ["docker.io/library/docker"],
-      "changelogUrl": "https://docs.docker.com/engine/release-notes/"
+      "matchPackageNames": ["docker.io/docker/compose-bin"],
+      "sourceUrl": "https://github.com/docker/compose"
     },
     {
       "matchDatasources": ["docker"],

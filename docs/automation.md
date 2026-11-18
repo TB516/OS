@@ -46,15 +46,15 @@ A system that skipped the step 1 image only trusts the old key. Move it to that 
 
 ## Adding dependencies
 
-Docker's Engine, CLI, Compose and Buildx update together through the official Docker image. Its BuildStream source uses this annotation:
+Docker Compose updates through its official binary image. Its BuildStream source uses this annotation:
 
 ```yaml
-  # renovate: datasource=docker depName=docker.io/library/docker
-  track: <version>-dind
+  # renovate: datasource=docker depName=docker.io/docker/compose-bin
+  track: v<version>
   ref: sha256:<linux/amd64 manifest digest>
 ```
 
-Keep the full version and `-dind` suffix. Renovate updates the tag and digest together and preserves the architecture of the existing Linux amd64 manifest pin. BuildStream's Docker source expects a platform manifest rather than a multi-platform index.
+Keep the `v` prefix of the release tag. Renovate updates the tag and digest together and preserves the architecture of the existing Linux amd64 manifest pin. BuildStream's Docker source expects a platform manifest rather than a multi-platform index.
 
 The shared BuildStream plugin junctions have their own release tags and commit pins, managed directly by Renovate. The Docker source carries a small compatibility patch shared with other OCI imports, covering HTTP content types, Zstd layers and `sha256:` refs. Review that patch when updating the plugin release.
 

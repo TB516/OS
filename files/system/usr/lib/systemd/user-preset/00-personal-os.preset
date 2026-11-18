@@ -1,1 +1,2 @@
 enable mise-bootstrap.service
+enable podman.socket

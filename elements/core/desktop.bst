@@ -49,7 +49,7 @@ depends:
 - core/appstream-cli.bst
 - core/eu-strip.bst
 - core/strip.bst
-- core/docker.bst
+- core/docker-compose.bst
 - core/ghostty.bst
 - dakota.bst:bluefin/xdg-terminal-exec.bst
 - dakota.bst:bluefin/tailscale.bst
