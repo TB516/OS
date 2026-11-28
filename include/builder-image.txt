@@ -1,1 +1,1 @@
-registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2:latest@sha256:e1b3770a4267a020bcd00f13aefe91e70d9a310299f5909360ded03e62a84515
+registry.gitlab.com/freedesktop-sdk/infrastructure/freedesktop-sdk-docker-images/bst2:latest@sha256:1fd500d753dc87d74bfd53c10d6bd45be1ecfe078952db6c576f5534a44185db
