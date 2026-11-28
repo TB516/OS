@@ -8,7 +8,7 @@ Personal OS, and replace hints to ujust recipes this image doesn't ship.
 diff --git a/elements/bluefin/secure-boot-tools.bst b/elements/bluefin/secure-boot-tools.bst
 --- a/elements/bluefin/secure-boot-tools.bst
 +++ b/elements/bluefin/secure-boot-tools.bst
-@@ -16,7 +16,7 @@
+@@ -20,7 +20,7 @@
  
  config:
    install-commands:
@@ -32,20 +32,20 @@ diff --git a/files/secure-boot/dakota-secure-boot-update.service b/files/secure-
 diff --git a/files/secure-boot/dakota-secure-boot b/files/secure-boot/dakota-secure-boot
 --- a/files/secure-boot/dakota-secure-boot
 +++ b/files/secure-boot/dakota-secure-boot
-@@ -117,10 +117,10 @@
+@@ -134,10 +134,10 @@
          disk="/dev/$(lsblk -no PKNAME "$dev")"
          part="$(cat "/sys/class/block/$(basename "$dev")/partition")"
          efibootmgr --quiet --create --disk "$disk" --part "$part" \
 -            --label "Dakota" --loader "$loader"
 +            --label "Personal OS" --loader "$loader"
-         num="$(boot_entry)"
+         num="$(boot_entry "$esp")"
          [ -n "$num" ] || die "could not create the firmware boot entry"
 -        echo "created firmware boot entry Boot$num (Dakota)"
 +        echo "created firmware boot entry Boot$num (Personal OS)"
      fi
      order="$(efibootmgr | sed -n 's/^BootOrder: //p')"
      if [ "${order%%,*}" != "$num" ]; then
-@@ -221,7 +221,7 @@
+@@ -238,7 +238,7 @@
          else
              rm -f "$tpm_state/$uuid"
              echo "Warning: could not keep TPM disk unlock working for $dev. Once Secure Boot"
@@ -54,7 +54,7 @@ diff --git a/files/secure-boot/dakota-secure-boot b/files/secure-boot/dakota-sec
          fi
      done 3< <(luks_volumes)
  }
-@@ -490,7 +490,7 @@
+@@ -509,7 +509,7 @@
      elif [ "$handheld" -eq 1 ]; then
          pass "IOMMU enabled, passthrough disabled" "not required on handhelds"
      elif [ -n "$passthrough" ]; then
@@ -63,7 +63,7 @@ diff --git a/files/secure-boot/dakota-secure-boot b/files/secure-boot/dakota-sec
      elif grep -q GenuineIntel /proc/cpuinfo; then
          fail "IOMMU enabled, passthrough disabled" "turn on VT-d in your firmware settings"
      else
-@@ -504,7 +504,7 @@
+@@ -523,7 +523,7 @@
      if [[ $mode == integrity || $mode == confidentiality ]]; then
          pass "Kernel lockdown" "mode is '$mode'"
      else
@@ -72,7 +72,7 @@ diff --git a/files/secure-boot/dakota-secure-boot b/files/secure-boot/dakota-sec
      fi
  }
  
-@@ -633,7 +633,7 @@
+@@ -652,7 +652,7 @@
      check) cmd_check ;;
      reseal) cmd_reseal ;;
      *)
