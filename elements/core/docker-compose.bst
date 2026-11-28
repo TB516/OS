@@ -8,8 +8,8 @@ sources:
   architecture: amd64
   os: linux
   # renovate: datasource=docker depName=docker.io/docker/compose-bin
-  track: v5.8.0
-  ref: sha256:2b1984a73f63ed92cf4ca659c592ae666c14877a0b9fbdfca586a3ab5488d226
+  track: v5.8.1
+  ref: sha256:096fa87c888889881653c5afb2064c4247b4275cf815f28a539b274c696ca12b
   directory: image
 
 build-depends:
